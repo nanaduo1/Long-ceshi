@@ -34,12 +34,12 @@
         /* --- 加载屏样式 --- */
         #splashScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #72feb7 0%, #49d3c0 100%);
+            background: linear-gradient(135deg, #3eb97f 10%, #3664ef 100%);
             z-index: 9999; display: flex; flex-direction: column;
             justify-content: center; align-items: center; color: white;
             transition: opacity 0.6s ease-out, visibility 0.6s;
         }
-        .loader-container { position: relative; width: 140px; height: 140px; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3)); }
+        .loader-container { position: relative; width: 140px; height: 140px; filter: drop-shadow(0 0px 0px rgba(0, 0, 0, 0)); }
         .heart-svg { width: 100%; height: 100%; overflow: visible; }
         .liquid-group { clip-path: url(#heartClip); }
         .wave { animation: wave-move 1.5s linear infinite; transform-origin: 50% 50%; }
@@ -47,7 +47,7 @@
         .glass-body { fill: rgba(255, 255, 255, 0.1); backdrop-filter: blur(2px); }
         .glass-stroke { fill: none; stroke: rgba(255, 255, 255, 0.6); stroke-width: 2; filter: drop-shadow(0 0 2px rgba(255,255,255,0.5)); }
         .highlight-large { fill: url(#shineGradient); opacity: 0.8; pointer-events: none; }
-        .loading-text { margin-top: 30px; font-size: 16px; font-weight: bold; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; }
+        .loading-text { margin-top: 30px; font-size: 12px; font-weight: light; letter-spacing: 1.2px; text-shadow: 0 0px 0px rgba(0,0,0,0); display: flex; align-items: center; gap: 8px; }
         .dots::after { content: ''; animation: dots-anim 1.5s infinite steps(4, end); }
         @keyframes dots-anim { 0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; } }
         #percentText { font-family: monospace; opacity: 0.8; font-size: 14px; }
