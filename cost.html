@@ -14,7 +14,7 @@
     <style>
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", Helvetica, Arial, sans-serif; 
-            background-color: #F2F2F7; color: #1c1c1e; padding-bottom: 100px;
+            background-color: #F2F2F7; color: #1c1c1e; padding-bottom: 40px;
             -webkit-tap-highlight-color: transparent;
             overscroll-behavior-y: none;
         }
@@ -37,7 +37,7 @@
                 <div id="ghStatusDot" class="w-2 h-2 rounded-full bg-gray-300 transition-colors duration-500"></div>
                 <p class="text-xs text-gray-500 font-bold uppercase tracking-wider" id="realTimeClock">Loading...</p>
             </div>
-            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">费用统计 💰</h1>
+            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">费用统计</h1>
         </div>
         <a href="index.html" class="bg-white p-2.5 rounded-full shadow-sm active:scale-95 transition text-gray-500">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
@@ -48,45 +48,88 @@
     <div class="card shadow-apple bg-gradient-to-br from-orange-400 to-red-500 text-white relative overflow-hidden">
         <div id="loadingOverlay" class="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-20 hidden"><div class="spinner"></div></div>
         
-        <div class="mb-4">
+        <div class="mb-5">
             <p class="text-xs font-bold opacity-80 uppercase">累计总费用</p>
             <h2 class="text-3xl font-extrabold mt-1">¥ <span id="totalCost">0.00</span></h2>
         </div>
         
-        <div class="grid grid-cols-3 gap-2 border-t border-white/20 pt-4">
+        <!-- 进度条区域 -->
+        <div class="space-y-4 border-t border-white/20 pt-4">
+            <!-- 医保 -->
             <div>
-                <p class="text-[10px] opacity-70 mb-1">🏥 医保支付</p>
-                <p class="text-sm font-bold">¥ <span id="totalYibao">0</span></p>
+                <div class="flex justify-between items-end mb-1">
+                    <span class="text-xs font-bold opacity-80">医保支付</span>
+                    <span class="text-sm font-bold">¥ <span id="totalYibao">0</span></span>
+                </div>
+                <div class="w-full bg-black/10 rounded-full h-1.5 overflow-hidden">
+                    <div id="barYibao" class="bg-blue-100 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
             </div>
+            
+            <!-- 商保 -->
             <div>
-                <p class="text-[10px] opacity-70 mb-1">🏢 商业保险</p>
-                <p class="text-sm font-bold">¥ <span id="totalShangbao">0</span></p>
+                <div class="flex justify-between items-end mb-1">
+                    <span class="text-xs font-bold opacity-80">商业保险</span>
+                    <span class="text-sm font-bold">¥ <span id="totalShangbao">0</span></span>
+                </div>
+                <div class="w-full bg-black/10 rounded-full h-1.5 overflow-hidden">
+                    <div id="barShangbao" class="bg-orange-200 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
             </div>
+
+            <!-- 个人 -->
             <div>
-                <p class="text-[10px] opacity-70 mb-1">👤 个人支付</p>
-                <p class="text-sm font-bold text-yellow-200">¥ <span id="totalGeren">0</span></p>
+                <div class="flex justify-between items-end mb-1">
+                    <span class="text-xs font-bold opacity-80">个人支付</span>
+                    <span class="text-sm font-bold text-yellow-100">¥ <span id="totalGeren">0</span></span>
+                </div>
+                <div class="w-full bg-black/10 rounded-full h-1.5 overflow-hidden">
+                    <div id="barGeren" class="bg-yellow-300 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- 列表区域 -->
-    <div id="costListContainer" class="space-y-3 mb-24">
+    <!-- 列表区域 (只显示前5条) -->
+    <div id="costListContainer" class="space-y-3 mb-6">
         <!-- 动态生成列表项 -->
     </div>
 
-    <!-- 底部按钮 -->
-    <div class="fixed bottom-8 left-0 right-0 px-4 max-w-sm mx-auto pointer-events-none">
-        <button onclick="openEntryModal()" class="pointer-events-auto w-full bg-gray-900 text-white py-3.5 rounded-2xl text-base font-bold shadow-2xl active:scale-95 transition flex items-center justify-center gap-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-            <span>记录新费用</span>
+    <!-- 查看更多按钮 (隐藏) -->
+    <div id="showMoreContainer" class="text-center mb-8 hidden">
+        <button onclick="openAllHistory()" class="text-xs text-gray-400 font-bold hover:text-blue-500 transition py-2">
+            点击查看更多记录 ↓
         </button>
+    </div>
+
+    <!-- 底部按钮 -->
+    <button onclick="openEntryModal()" class="w-full mb-12 bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl text-base font-bold shadow-lg shadow-blue-500/30 active:scale-95 transition flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        <span>记录新费用</span>
+    </button>
+
+    <!-- 全部历史弹窗 -->
+    <div id="allHistoryModal" class="fixed inset-0 bg-white z-50 hidden overflow-y-auto">
+        <div class="p-4 max-w-sm mx-auto">
+            <div class="flex justify-between items-center mb-6 mt-2">
+                <h2 class="text-xl font-bold">所有费用记录</h2>
+                <button onclick="document.getElementById('allHistoryModal').classList.add('hidden')" class="bg-gray-100 p-2 rounded-full text-sm font-bold text-gray-600">关闭</button>
+            </div>
+            <div class="border-b border-gray-100 pb-2 mb-2 flex justify-between text-xs font-bold text-gray-400 px-2">
+                <span>日期</span>
+                <span>总金额 / 个人支付</span>
+            </div>
+            <div id="allHistoryList" class="space-y-2 pb-20">
+                <!-- 动态列表 -->
+            </div>
+        </div>
     </div>
 
     <!-- 详情弹窗 (只读) -->
     <div id="detailModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 transition-opacity">
         <div class="bg-white w-full rounded-2xl p-6 shadow-2xl animate-slide-up">
             <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
-                <h3 class="text-lg font-bold text-gray-800" id="detailDate">2023-01-01</h3>
+                <h3 class="text-lg font-bold text-gray-800" id="detailDate">--</h3>
                 <button onclick="document.getElementById('detailModal').classList.add('hidden')" class="bg-gray-100 rounded-full p-1 w-8 h-8 text-gray-500 font-bold">✕</button>
             </div>
             
@@ -95,9 +138,9 @@
                 <div>
                     <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">① 费用构成</h4>
                     <div class="space-y-2">
-                        <div class="flex justify-between text-sm"><span class="text-gray-600">🔬 检查费用</span><span class="font-bold font-mono" id="dJiancha">0.00</span></div>
-                        <div class="flex justify-between text-sm"><span class="text-gray-600">💊 药物费用</span><span class="font-bold font-mono" id="dYaowu">0.00</span></div>
-                        <div class="flex justify-between text-sm"><span class="text-gray-600">🚗 交通费用</span><span class="font-bold font-mono" id="dJiaotong">0.00</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-600">检查费用</span><span class="font-bold font-mono" id="dJiancha">0.00</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-600">药物费用</span><span class="font-bold font-mono" id="dYaowu">0.00</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-gray-600">交通费用</span><span class="font-bold font-mono" id="dJiaotong">0.00</span></div>
                     </div>
                 </div>
 
@@ -105,9 +148,9 @@
                 <div>
                     <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">② 支付情况</h4>
                     <div class="space-y-2">
-                        <div class="flex justify-between text-sm"><span class="text-blue-600 font-bold">🏥 医保统筹</span><span class="font-bold font-mono text-blue-600" id="dYibao">0.00</span></div>
-                        <div class="flex justify-between text-sm"><span class="text-orange-500 font-bold">🏢 商业保险</span><span class="font-bold font-mono text-orange-500" id="dShangbao">0.00</span></div>
-                        <div class="flex justify-between text-sm p-2 bg-gray-50 rounded-lg"><span class="text-gray-800 font-bold">👤 个人自费</span><span class="font-bold font-mono text-gray-900" id="dGeren">0.00</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-blue-600 font-bold">医保统筹</span><span class="font-bold font-mono text-blue-600" id="dYibao">0.00</span></div>
+                        <div class="flex justify-between text-sm"><span class="text-orange-500 font-bold">商业保险</span><span class="font-bold font-mono text-orange-500" id="dShangbao">0.00</span></div>
+                        <div class="flex justify-between text-sm p-2 bg-gray-50 rounded-lg"><span class="text-gray-800 font-bold">个人自费</span><span class="font-bold font-mono text-gray-900" id="dGeren">0.00</span></div>
                     </div>
                 </div>
                 
@@ -172,7 +215,7 @@
                 </div>
             </div>
 
-            <button onclick="saveCost()" id="btnSave" class="w-full mt-6 bg-black text-white py-3 rounded-xl font-bold text-sm shadow-lg">保存记录</button>
+            <button onclick="saveCost()" id="btnSave" class="w-full mt-6 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30">保存记录</button>
         </div>
     </div>
 
@@ -242,9 +285,7 @@
             costData.push(newItem);
             
             try {
-                // 保存逻辑复用
                 const url = `https://api.github.com/repos/${config.user}/${config.repo}/contents/feiyong.json`;
-                // 先获取SHA (如果文件存在)
                 let sha = null;
                 try {
                     const getRes = await fetch(url, { headers: { 'Authorization': `token ${config.token}` }, cache: "no-store" });
@@ -286,16 +327,23 @@
             document.getElementById('totalShangbao').innerText = fmt(tShangbao);
             document.getElementById('totalGeren').innerText = fmt(tGeren);
 
-            // 2. 渲染列表
+            // 更新进度条
+            if (tTotal > 0) {
+                document.getElementById('barYibao').style.width = `${(tYibao / tTotal) * 100}%`;
+                document.getElementById('barShangbao').style.width = `${(tShangbao / tTotal) * 100}%`;
+                document.getElementById('barGeren').style.width = `${(tGeren / tTotal) * 100}%`;
+            }
+
+            // 2. 渲染列表 (只显示前5条)
             const container = document.getElementById('costListContainer');
             container.innerHTML = '';
             
             // 按日期倒序
             const sortedData = [...costData].sort((a,b) => dayjs(b.date).diff(dayjs(a.date)));
+            const displayData = sortedData.slice(0, 5);
             
-            sortedData.forEach(item => {
+            displayData.forEach(item => {
                 const dateStr = dayjs(item.date).format('MM月DD日');
-                const fullDate = dayjs(item.date).format('YYYY-MM-DD');
                 container.innerHTML += `
                 <div class="card shadow-apple p-4 mb-3 flex items-center justify-between">
                     <div class="flex items-center gap-4">
@@ -312,6 +360,33 @@
                     </button>
                 </div>`;
             });
+
+            // 控制"查看更多"显示
+            const showMore = document.getElementById('showMoreContainer');
+            if (sortedData.length > 5) {
+                showMore.classList.remove('hidden');
+            } else {
+                showMore.classList.add('hidden');
+            }
+        }
+
+        function openAllHistory() {
+            const list = document.getElementById('allHistoryList');
+            list.innerHTML = '';
+            const sortedData = [...costData].sort((a,b) => dayjs(b.date).diff(dayjs(a.date)));
+            const fmt = (n) => n.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            sortedData.forEach(item => {
+                list.innerHTML += `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2">
+                    <span class="font-bold text-gray-700 w-24">${dayjs(item.date).format('YYYY-MM-DD')}</span>
+                    <div class="flex flex-col items-end">
+                        <span class="font-bold text-gray-900">¥ ${fmt(item.total)}</span>
+                        <span class="text-xs text-gray-400">自费: ¥${fmt(item.payment?.geren || 0)}</span>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('allHistoryModal').classList.remove('hidden');
         }
 
         function openDetail(item) {
