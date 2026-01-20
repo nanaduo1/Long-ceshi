@@ -1,0 +1,77 @@
+[
+  {
+    "id": "1709251200000",
+    "date": "2024-03-01",
+    "total": 1250.50,
+    "items": {
+      "jiancha": 800.00,
+      "yaowu": 400.00,
+      "jiaotong": 50.50
+    },
+    "payment": {
+      "yibao": 600.00,
+      "shangbao": 400.00,
+      "geren": 250.50
+    }
+  },
+  {
+    "id": "1711929600000",
+    "date": "2024-04-01",
+    "total": 3200.00,
+    "items": {
+      "jiancha": 200.00,
+      "yaowu": 3000.00,
+      "jiaotong": 0.00
+    },
+    "payment": {
+      "yibao": 2000.00,
+      "shangbao": 0.00,
+      "geren": 1200.00
+    }
+  },
+  {
+    "id": "1714521600000",
+    "date": "2024-05-01",
+    "total": 150.00,
+    "items": {
+      "jiancha": 0.00,
+      "yaowu": 120.00,
+      "jiaotong": 30.00
+    },
+    "payment": {
+      "yibao": 100.00,
+      "shangbao": 0.00,
+      "geren": 50.00
+    }
+  },
+  {
+    "id": "1717200000000",
+    "date": "2024-06-01",
+    "total": 4500.00,
+    "items": {
+      "jiancha": 1500.00,
+      "yaowu": 2900.00,
+      "jiaotong": 100.00
+    },
+    "payment": {
+      "yibao": 3000.00,
+      "shangbao": 1000.00,
+      "geren": 500.00
+    }
+  },
+  {
+    "id": "1719792000000",
+    "date": "2024-07-01",
+    "total": 880.00,
+    "items": {
+      "jiancha": 800.00,
+      "yaowu": 0.00,
+      "jiaotong": 80.00
+    },
+    "payment": {
+      "yibao": 400.00,
+      "shangbao": 200.00,
+      "geren": 280.00
+    }
+  }
+]
