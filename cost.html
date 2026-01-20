@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>费用统计</title>
-    <meta name="theme-color" content="#f97316">
+    <meta name="theme-color" content="#f59e0b">
     <link rel="apple-touch-icon" href="/images/icon.png">
     <link rel="shortcut icon" href="/images/icon.png">
     
@@ -25,6 +25,15 @@
         input[type="date"], input[type="number"] { -webkit-appearance: none; appearance: none; }
         .spinner { border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 票据锯齿效果 (可选，简单实现) */
+        .ticket-sep {
+            position: relative;
+            height: 20px;
+            background: radial-gradient(circle, transparent 8px, #ffffff 8px) left bottom / 20px 20px repeat-x;
+            transform: rotate(180deg);
+            margin-top: -10px;
+        }
     </style>
     <script>dayjs.locale('zh-cn');</script>
 </head>
@@ -44,47 +53,66 @@
         </a>
     </div>
 
-    <!-- 总览卡片 -->
-    <div class="card shadow-apple bg-gradient-to-br from-orange-400 to-red-500 text-white relative overflow-hidden">
+    <!-- 总览卡片 (票据风格) -->
+    <div class="shadow-apple rounded-2xl overflow-hidden mb-5">
         <div id="loadingOverlay" class="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-20 hidden"><div class="spinner"></div></div>
         
-        <div class="mb-5">
-            <p class="text-xs font-bold opacity-80 uppercase">累计总费用</p>
-            <h2 class="text-3xl font-extrabold mt-1">¥ <span id="totalCost">0.00</span></h2>
-        </div>
-        
-        <!-- 进度条区域 -->
-        <div class="space-y-4 border-t border-white/20 pt-4">
-            <!-- 医保 -->
-            <div>
-                <div class="flex justify-between items-end mb-1">
-                    <span class="text-xs font-bold opacity-80">医保支付</span>
-                    <span class="text-sm font-bold">¥ <span id="totalYibao">0</span></span>
-                </div>
-                <div class="w-full bg-black/10 rounded-full h-1.5 overflow-hidden">
-                    <div id="barYibao" class="bg-blue-100 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
-                </div>
-            </div>
+        <!-- 上半部分：金色渐变 -->
+        <div class="bg-gradient-to-r from-amber-300 to-yellow-500 p-6 pb-8 text-amber-900 relative">
+            <p class="text-xs font-bold opacity-70 uppercase tracking-wide">累计总费用</p>
+            <h2 class="text-4xl font-extrabold mt-1 tracking-tight">¥ <span id="totalCost">0.00</span></h2>
             
-            <!-- 商保 -->
-            <div>
-                <div class="flex justify-between items-end mb-1">
-                    <span class="text-xs font-bold opacity-80">商业保险</span>
-                    <span class="text-sm font-bold">¥ <span id="totalShangbao">0</span></span>
-                </div>
-                <div class="w-full bg-black/10 rounded-full h-1.5 overflow-hidden">
-                    <div id="barShangbao" class="bg-orange-200 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
-                </div>
-            </div>
+            <!-- 装饰性圆点，模拟票据打孔 -->
+            <div class="absolute -bottom-3 -left-3 w-6 h-6 bg-[#F2F2F7] rounded-full"></div>
+            <div class="absolute -bottom-3 -right-3 w-6 h-6 bg-[#F2F2F7] rounded-full"></div>
+        </div>
 
-            <!-- 个人 -->
-            <div>
-                <div class="flex justify-between items-end mb-1">
-                    <span class="text-xs font-bold opacity-80">个人支付</span>
-                    <span class="text-sm font-bold text-yellow-100">¥ <span id="totalGeren">0</span></span>
+        <!-- 虚线分割 -->
+        <div class="h-0 border-t-2 border-dashed border-gray-300 bg-white mx-4"></div>
+
+        <!-- 下半部分：灰白渐变 -->
+        <div class="bg-gradient-to-b from-gray-50 to-white p-6 pt-6">
+            <div class="space-y-5">
+                <!-- 医保 -->
+                <div>
+                    <div class="flex justify-between items-end mb-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-gray-500">医保支付</span>
+                            <span class="text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded" id="pctYibao">0%</span>
+                        </div>
+                        <span class="text-sm font-bold text-gray-800">¥ <span id="totalYibao">0</span></span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                        <div id="barYibao" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
                 </div>
-                <div class="w-full bg-black/10 rounded-full h-1.5 overflow-hidden">
-                    <div id="barGeren" class="bg-yellow-300 h-1.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                
+                <!-- 商保 -->
+                <div>
+                    <div class="flex justify-between items-end mb-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-gray-500">商业保险</span>
+                            <span class="text-[10px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded" id="pctShangbao">0%</span>
+                        </div>
+                        <span class="text-sm font-bold text-gray-800">¥ <span id="totalShangbao">0</span></span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                        <div id="barShangbao" class="bg-orange-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <!-- 个人 -->
+                <div>
+                    <div class="flex justify-between items-end mb-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-gray-500">个人支付</span>
+                            <span class="text-[10px] font-bold text-gray-600 bg-gray-200 px-1.5 py-0.5 rounded" id="pctGeren">0%</span>
+                        </div>
+                        <span class="text-sm font-bold text-gray-800">¥ <span id="totalGeren">0</span></span>
+                    </div>
+                    <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                        <div id="barGeren" class="bg-gray-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -95,10 +123,10 @@
         <!-- 动态生成列表项 -->
     </div>
 
-    <!-- 查看更多按钮 (隐藏) -->
+    <!-- 查看更多按钮 (默认隐藏) -->
     <div id="showMoreContainer" class="text-center mb-8 hidden">
-        <button onclick="openAllHistory()" class="text-xs text-gray-400 font-bold hover:text-blue-500 transition py-2">
-            点击查看更多记录 ↓
+        <button onclick="openAllHistory()" class="text-xs text-gray-400 font-bold hover:text-blue-500 transition py-2 px-4 rounded-full active:bg-gray-100">
+            点击查看更多
         </button>
     </div>
 
@@ -117,7 +145,7 @@
             </div>
             <div class="border-b border-gray-100 pb-2 mb-2 flex justify-between text-xs font-bold text-gray-400 px-2">
                 <span>日期</span>
-                <span>总金额 / 个人支付</span>
+                <span class="pr-8">总金额 / 个人支付</span>
             </div>
             <div id="allHistoryList" class="space-y-2 pb-20">
                 <!-- 动态列表 -->
@@ -126,7 +154,7 @@
     </div>
 
     <!-- 详情弹窗 (只读) -->
-    <div id="detailModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 transition-opacity">
+    <div id="detailModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4 transition-opacity">
         <div class="bg-white w-full rounded-2xl p-6 shadow-2xl animate-slide-up">
             <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
                 <h3 class="text-lg font-bold text-gray-800" id="detailDate">--</h3>
@@ -251,7 +279,7 @@
             const res = await fetch(`https://api.github.com/repos/${config.user}/${config.repo}/contents/feiyong.json`, {
                 headers: { 'Authorization': `token ${config.token}`, 'Accept': 'application/vnd.github.v3+json' }, cache: "no-store"
             });
-            if (res.status === 404) { costData = []; return; } // 文件不存在初始化为空
+            if (res.status === 404) { costData = []; return; } 
             if (!res.ok) throw new Error("Fetch failed");
             const json = await res.json();
             costData = JSON.parse(decodeURIComponent(escape(window.atob(json.content))));
@@ -279,7 +307,6 @@
                 }
             };
             
-            // 计算总额 (以费用明细之和为准)
             newItem.total = newItem.items.jiancha + newItem.items.yaowu + newItem.items.jiaotong;
 
             costData.push(newItem);
@@ -306,7 +333,7 @@
                 setGhStatus('success');
             } catch (e) {
                 showError("保存失败: " + e.message);
-                costData.pop(); // 回滚
+                costData.pop(); 
             }
             btn.innerText = "保存记录"; btn.disabled = false;
         }
@@ -327,11 +354,20 @@
             document.getElementById('totalShangbao').innerText = fmt(tShangbao);
             document.getElementById('totalGeren').innerText = fmt(tGeren);
 
-            // 更新进度条
+            // 更新进度条和百分比
             if (tTotal > 0) {
-                document.getElementById('barYibao').style.width = `${(tYibao / tTotal) * 100}%`;
-                document.getElementById('barShangbao').style.width = `${(tShangbao / tTotal) * 100}%`;
-                document.getElementById('barGeren').style.width = `${(tGeren / tTotal) * 100}%`;
+                const pYibao = (tYibao / tTotal) * 100;
+                const pShangbao = (tShangbao / tTotal) * 100;
+                const pGeren = (tGeren / tTotal) * 100;
+
+                document.getElementById('barYibao').style.width = `${pYibao}%`;
+                document.getElementById('pctYibao').innerText = `${pYibao.toFixed(1)}%`;
+
+                document.getElementById('barShangbao').style.width = `${pShangbao}%`;
+                document.getElementById('pctShangbao').innerText = `${pShangbao.toFixed(1)}%`;
+
+                document.getElementById('barGeren').style.width = `${pGeren}%`;
+                document.getElementById('pctGeren').innerText = `${pGeren.toFixed(1)}%`;
             }
 
             // 2. 渲染列表 (只显示前5条)
@@ -377,12 +413,19 @@
             const fmt = (n) => n.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
             sortedData.forEach(item => {
+                // 转义JSON字符串以防止HTML注入
+                const itemStr = JSON.stringify(item).replace(/"/g, '&quot;');
                 list.innerHTML += `
                 <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2">
-                    <span class="font-bold text-gray-700 w-24">${dayjs(item.date).format('YYYY-MM-DD')}</span>
-                    <div class="flex flex-col items-end">
-                        <span class="font-bold text-gray-900">¥ ${fmt(item.total)}</span>
-                        <span class="text-xs text-gray-400">自费: ¥${fmt(item.payment?.geren || 0)}</span>
+                    <span class="font-bold text-gray-700 w-24 text-sm">${dayjs(item.date).format('YYYY-MM-DD')}</span>
+                    <div class="flex items-center gap-3 flex-1 justify-end">
+                        <div class="flex flex-col items-end">
+                            <span class="font-bold text-gray-900 text-sm">¥ ${fmt(item.total)}</span>
+                            <span class="text-[10px] text-gray-400">自费: ¥${fmt(item.payment?.geren || 0)}</span>
+                        </div>
+                        <button onclick='openDetail(${itemStr})' class="text-gray-400 hover:text-blue-600 transition p-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                        </button>
                     </div>
                 </div>`;
             });
@@ -409,7 +452,6 @@
         function openEntryModal() {
             document.getElementById('entryModal').classList.remove('hidden');
             document.getElementById('inDate').value = dayjs().format('YYYY-MM-DD');
-            // 清空输入
             ['inJiancha','inYaowu','inJiaotong','inYibao','inShangbao','inGeren'].forEach(id => document.getElementById(id).value = '');
         }
 
