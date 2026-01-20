@@ -2,10 +2,14 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <!-- 修改：添加 maximum-scale=1, user-scalable=no 以防止输入时页面自动放大 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>老婆万岁</title>
     <link rel="manifest" href="/manifest.json">
+    <!-- 关键：设置主题色，让手机状态栏与加载背景融为一体，避免白屏 -->
     <meta name="theme-color" content="#667eea">
+
+    <!-- 添加到手机主屏幕的图标 -->
     <link rel="apple-touch-icon" href="/images/icon.png">
     <link rel="shortcut icon" href="/images/icon.png">
     
@@ -18,6 +22,7 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", Helvetica, Arial, sans-serif; 
             background-color: #F2F2F7; color: #1c1c1e; padding-bottom: 100px;
             -webkit-tap-highlight-color: transparent;
+            /* 防止iOS回弹效果露出白色背景 */
             overscroll-behavior-y: none;
         }
         .shadow-apple { box-shadow: 0 4px 20px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.03); }
@@ -31,32 +36,72 @@
             -webkit-appearance: none; appearance: none; min-height: 44px;
         }
 
-        /* --- 加载屏样式 --- */
+        /* --- 加载屏样式 (Loading Screen) --- */
         #splashScreen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #3eb97f 10%, #3664ef 100%);
-            z-index: 9999; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; color: white;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* 蓝紫渐变背景 */
+            background: linear-gradient(135deg, #72feb7 0%, #49d3c0 100%);
+            z-index: 9999; /* 确保在最顶层 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
             transition: opacity 0.6s ease-out, visibility 0.6s;
         }
-        .loader-container { position: relative; width: 140px; height: 140px; filter: drop-shadow(0 0px 0px rgba(0, 0, 0, 0)); }
+
+        /* 容器 */
+        .loader-container {
+            position: relative;
+            width: 140px; height: 140px;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+        }
         .heart-svg { width: 100%; height: 100%; overflow: visible; }
+
+        /* 液体动画 */
         .liquid-group { clip-path: url(#heartClip); }
-        .wave { animation: wave-move 1.5s linear infinite; transform-origin: 50% 50%; }
-        @keyframes wave-move { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        .glass-body { fill: rgba(255, 255, 255, 0.1); backdrop-filter: blur(2px); }
-        .glass-stroke { fill: none; stroke: rgba(255, 255, 255, 0.6); stroke-width: 2; filter: drop-shadow(0 0 2px rgba(255,255,255,0.5)); }
+        .liquid-fill { fill: url(#liquidGradient); }
+        .wave {
+            animation: wave-move 1.5s linear infinite;
+            transform-origin: 50% 50%;
+        }
+        @keyframes wave-move {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* 玻璃质感 */
+        .glass-body {
+            fill: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(2px);
+        }
+        .glass-stroke {
+            fill: none; stroke: rgba(255, 255, 255, 0.6); stroke-width: 2;
+            filter: drop-shadow(0 0 2px rgba(255,255,255,0.5));
+        }
         .highlight-large { fill: url(#shineGradient); opacity: 0.8; pointer-events: none; }
-        .loading-text { margin-top: 30px; font-size: 12px; font-weight: light; letter-spacing: 1.2px; text-shadow: 0 0px 0px rgba(0,0,0,0); display: flex; align-items: center; gap: 8px; }
+        .highlight-small { fill: white; opacity: 0.9; filter: blur(1px); }
+
+        /* 底部文字 */
+        .loading-text {
+            margin-top: 30px;
+            font-size: 16px; font-weight: bold; letter-spacing: 1.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            display: flex; align-items: center; gap: 8px;
+        }
         .dots::after { content: ''; animation: dots-anim 1.5s infinite steps(4, end); }
-        @keyframes dots-anim { 0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; } }
-        #percentText { font-family: monospace; opacity: 0.8; font-size: 11px; }
+        @keyframes dots-anim {
+            0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; }
+        }
+        #percentText { font-family: monospace; opacity: 0.8; font-size: 14px; }
+
     </style>
     <script>dayjs.locale('zh-cn');</script>
 </head>
 <body class="p-4 max-w-sm mx-auto">
 
-    <!-- 全屏加载层 -->
+    <!-- 全屏加载层 (Splash Screen) -->
     <div id="splashScreen">
         <div class="loader-container">
             <svg class="heart-svg" viewBox="0 0 100 90">
@@ -101,7 +146,6 @@
             </div>
             <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">老婆么么哒❤️</h1>
         </div>
-        <!-- 更改为个人中心按钮 -->
         <button onclick="openNavMenu()" class="bg-white p-2.5 rounded-full shadow-sm active:scale-95 transition text-blue-500">
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
@@ -228,7 +272,7 @@
         </div>
     </div>
 
-    <button onclick="openEntryModal()" class="w-full mb-6 bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl text-base font-bold shadow-lg shadow-blue-500/30 active:scale-95 transition flex items-center justify-center gap-2">
+    <button onclick="openEntryModal()" class="w-full mb-12 bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl text-base font-bold shadow-lg shadow-blue-500/30 active:scale-95 transition flex items-center justify-center gap-2">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
         <span>录入化验单 / 校准库存</span>
     </button>
