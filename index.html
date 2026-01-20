@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>老婆万岁</title>
+    <link rel="manifest" href="/manifest.json">
+
+    <!-- 添加到手机主屏幕的图标 -->
+    <link rel="apple-touch-icon" href="/images/icon.png">
+    <link rel="shortcut icon" href="/images/icon.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1/locale/zh-cn.js"></script>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", Helvetica, Arial, sans-serif; 
+            background-color: #F2F2F7; color: #1c1c1e; padding-bottom: 100px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .shadow-apple { box-shadow: 0 4px 20px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.03); }
+        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; }
+        .spinner { border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* 弹窗动画 */
+        .animate-slide-up { animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        /* 强制移除 iOS 日期输入框默认样式 */
+        input[type="date"] {
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 44px; /* 统一高度 */
+        }
+        input[type="number"] {
+            -webkit-appearance: none;
+            appearance: none;
+            min-height: 44px;
+        }
+    </style>
+    <script>dayjs.locale('zh-cn');</script>
+</head>
+<body class="p-4 max-w-sm mx-auto">
+
+    <div class="mt-4 mb-5 flex justify-between items-center px-1">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <div id="ghStatusDot" class="w-2 h-2 rounded-full bg-gray-300 transition-colors duration-500"></div>
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider" id="realTimeClock">Loading...</p>
+            </div>
+            <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">老婆么么哒❤️</h1>
+        </div>
+        <button onclick="openSettings()" class="bg-white p-2.5 rounded-full shadow-sm active:scale-95 transition">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+    </div>
+
+    <div id="medCard" class="card shadow-apple bg-gradient-to-br from-blue-500 to-indigo-600 text-white relative overflow-hidden transition-all duration-500">
+        <div id="loadingOverlay" class="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-20 hidden"><div class="spinner"></div></div>
+        
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h2 class="text-base font-bold">公主请吃药~</h2>
+                <p class="text-xs opacity-80">记得打卡，记得喝水哦</p>
+            </div>
+            <div class="flex items-center bg-black/10 rounded-lg px-2 py-1 gap-2">
+                <span class="text-xs font-bold">💧 <span id="waterCount">0</span>/<span id="waterTarget">8</span></span>
+                <button onclick="updateWater(1)" class="w-5 h-5 bg-white/20 rounded text-xs flex items-center justify-center hover:bg-white/30">+</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+            <button onclick="checkIn('am')" id="btnAm" class="group relative flex flex-col items-center justify-center py-4 rounded-xl border border-white/20 bg-white/10 active:scale-95 transition-all">
+                <div class="text-2xl mb-1 opacity-50">☀️</div>
+                <span class="text-sm font-bold opacity-80">早晨</span>
+                <span id="timeAm" class="text-[10px] opacity-60 mt-1 h-3">--:--</span>
+                <div id="checkAm" class="absolute inset-0 bg-white/95 rounded-xl hidden flex-col items-center justify-center text-green-600">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                    <span class="text-xs font-bold mt-1">已服 (2粒)</span>
+                </div>
+            </button>
+            <button onclick="checkIn('pm')" id="btnPm" class="group relative flex flex-col items-center justify-center py-4 rounded-xl border border-white/20 bg-white/10 active:scale-95 transition-all">
+                <div class="text-2xl mb-1 opacity-50">🌙</div>
+                <span class="text-sm font-bold opacity-80">晚间</span>
+                <span id="timePm" class="text-[10px] opacity-60 mt-1 h-3">--:--</span>
+                <div id="checkPm" class="absolute inset-0 bg-white/95 rounded-xl hidden flex-col items-center justify-center text-indigo-600">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                    <span class="text-xs font-bold mt-1">已服 (2粒)</span>
+                </div>
+            </button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 mb-3">
+        <!-- 药物库存卡片 -->
+        <div class="card shadow-apple mb-0 p-4 flex flex-col justify-between">
+            <span class="text-xs font-bold text-gray-400 uppercase">爱心胶囊 (估算)</span>
+            <div class="flex items-end gap-1 my-1">
+                <span class="text-3xl font-extrabold text-gray-900" id="stockCount">--</span>
+                <span class="text-xs text-gray-500 mb-1 font-bold">粒</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div id="stockBar" class="bg-green-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p class="text-[10px] text-gray-400 mt-1 text-right">总容量 120</p>
+        </div>
+        
+        <!-- 距离复查卡片 -->
+        <div class="card shadow-apple mb-0 p-4 flex flex-col justify-between">
+            <span class="text-xs font-bold text-gray-400 uppercase">距离复查</span>
+            <div class="flex items-end gap-1 my-1">
+                <span class="text-3xl font-extrabold text-gray-900" id="daysUntil">--</span>
+                <span class="text-xs text-gray-500 mb-1 font-bold">天</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div id="daysBar" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p class="text-[10px] text-gray-400 mt-1 text-right">复查日期 <span id="visitDate">--/--</span></p>
+        </div>
+    </div>
+
+    <div class="card shadow-apple p-4 mb-3">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="text-sm font-bold text-gray-800">让我看看有没有按时吃药😏</h3>
+            <button onclick="showHistoryModal()" class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-md">详细</button>
+        </div>
+        <div class="flex justify-between" id="weekHistory"></div>
+    </div>
+
+    <div class="card shadow-apple p-4 mb-3">
+        <div class="flex justify-between items-center mb-2">
+            <!-- 强制高度容器 -->
+            <div class="h-10 flex flex-col justify-center">
+                <div class="flex items-center gap-1">
+                    <h3 class="text-sm font-bold text-gray-800">BCR-ABL % (近1年)</h3>
+                    <!-- 信息图标按钮 -->
+                    <button onclick="document.getElementById('infoModal').classList.remove('hidden')" class="text-gray-400 hover:text-blue-500 active:scale-95 transition-transform">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+                <span class="text-[10px] text-gray-400">下次基因检测时间为4月</span>
+            </div>
+            <button onclick="showLabHistory('bcr')" class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-md h-7">详细</button>
+        </div>
+        <div style="height: 180px;"><canvas id="chartBcr"></canvas></div>
+    </div>
+
+    <div class="card shadow-apple p-4 mb-6">
+        <div class="flex justify-between items-center mb-2">
+            <!-- 强制高度容器 -->
+            <div class="h-10 flex flex-col justify-center">
+                <h3 class="text-sm font-bold text-gray-800">血常规趋势 (近1年)</h3>
+                <div class="flex gap-2 mt-0.5">
+                    <span class="text-[10px] flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>WBC 白细胞</span>
+                    <span class="text-[10px] flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>PLT 血小板</span>
+                </div>
+            </div>
+            <button onclick="showLabHistory('blood')" class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-md h-7">详细</button>
+        </div>
+        <div style="height: 180px;"><canvas id="chartBlood"></canvas></div>
+    </div>
+
+    <div class="mx-1 mb-6 border border-amber-200 bg-amber-50 rounded-xl p-3 flex gap-3">
+        <div class="text-amber-500 text-lg">💡</div>
+        <div class="text-xs text-gray-600 leading-relaxed">
+            <span class="font-bold text-gray-800">医嘱：</span>
+            <p>· 空腹服药，餐后2小时后服药，服药后1小时禁食；</p>
+            <p>· 在12-18个⽉内BCR-ABL1≤0.1% 表示预后良好；</p>
+            <p>· 开始治疗后每3个⽉基因检测1次，共2年；</p>
+            <p>· 2年后BCR-ABL1达到≤1%，每3-6个⽉检测1次；</p>
+            <p>· BCR-ABL1≤0.01%2年以上是考虑停药指标之⼀。</p>
+        </div>
+    </div>
+
+    <button onclick="openEntryModal()" class="w-full mb-12 bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl text-base font-bold shadow-lg shadow-blue-500/30 active:scale-95 transition flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        <span>录入化验单 / 校准库存</span>
+    </button>
+
+    <!-- 信息弹窗 -->
+    <div id="infoModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-2xl animate-slide-up">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-gray-800">参考标准</h3>
+                <button onclick="document.getElementById('infoModal').classList.add('hidden')" class="bg-gray-100 rounded-full p-1 w-8 h-8 text-gray-500 font-bold hover:bg-gray-200 transition">✕</button>
+            </div>
+            
+            <h4 class="text-sm font-bold text-blue-600 mb-2 mt-1">分子反应各阶段</h4>
+            <div class="overflow-hidden rounded-lg border border-gray-100 text-xs mb-5">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-gray-500 uppercase tracking-wider">
+                        <tr>
+                            <th class="px-3 py-2 font-medium">阶段</th>
+                            <th class="px-3 py-2 font-medium">名称</th>
+                            <th class="px-3 py-2 font-medium text-right whitespace-nowrap">BCR-ABL</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 text-gray-700 font-medium">
+                        <tr><td class="px-3 py-2">初诊</td><td class="px-3 py-2 text-gray-500">活跃期</td><td class="px-3 py-2 text-right">≥10%</td></tr>
+                        <tr class="bg-gray-50/30"><td class="px-3 py-2">EMR</td><td class="px-3 py-2 text-gray-500">早期反应</td><td class="px-3 py-2 text-right">≤10%</td></tr>
+                        <tr><td class="px-3 py-2 text-blue-600">MMR</td><td class="px-3 py-2 text-gray-500">主要反应</td><td class="px-3 py-2 text-right text-blue-600">≤0.1%</td></tr>
+                        <tr class="bg-gray-50/30"><td class="px-3 py-2">MR4</td><td class="px-3 py-2 text-gray-500">深度缓解</td><td class="px-3 py-2 text-right">≤0.01%</td></tr>
+                        <tr><td class="px-3 py-2">MR4.5</td><td class="px-3 py-2 text-gray-500">极深缓解</td><td class="px-3 py-2 text-right">≤0.0032%</td></tr>
+                        <tr class="bg-green-50 text-green-700"><td class="px-3 py-2">CMR</td><td class="px-3 py-2">完全缓解</td><td class="px-3 py-2 text-right">未检出</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4 class="text-sm font-bold text-blue-600 mb-2">重要时间节点</h4>
+            <ul class="text-xs text-gray-600 space-y-2 ml-1 font-medium">
+                <li class="flex justify-between items-center border-b border-gray-50 pb-1">
+                    <span class="text-gray-500">3 个月</span>
+                    <span class="font-bold text-gray-800">≤10%</span>
+                </li>
+                <li class="flex justify-between items-center border-b border-gray-50 pb-1">
+                    <span class="text-gray-500">6–12 个月</span>
+                    <span class="font-bold text-gray-800">≤0.1%</span>
+                </li>
+                <li class="flex justify-between items-center border-b border-gray-50 pb-1">
+                    <span class="text-gray-500">1–2 年</span>
+                    <span class="font-bold text-gray-800">≤0.01%</span>
+                </li>
+                <li class="flex justify-between items-center pt-1">
+                    <span class="text-gray-500">≥2 年稳定</span>
+                    <span class="font-bold text-green-600">未检出</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="entryModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-end sm:items-center justify-center transition-opacity">
+        <div class="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl animate-slide-up">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold">更新数据</h2>
+                <button onclick="closeEntryModal()" class="bg-gray-100 rounded-full p-1 w-8 h-8 text-gray-500 font-bold">✕</button>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">日期</label>
+                    <input type="date" id="inDate" class="w-full appearance-none m-0 bg-gray-100 rounded-xl p-3 text-sm font-bold outline-none text-gray-900 border-none">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">白细胞 (WBC)</label>
+                        <input type="number" id="inWbc" placeholder="选填" class="w-full appearance-none m-0 bg-gray-100 rounded-xl p-3 text-sm font-bold outline-none text-gray-900">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 mb-1">血小板 (PLT)</label>
+                        <input type="number" id="inPlt" placeholder="选填" class="w-full appearance-none m-0 bg-gray-100 rounded-xl p-3 text-sm font-bold outline-none text-gray-900">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 mb-1">BCR-ABL %</label>
+                    <input type="number" id="inBcr" placeholder="选填" class="w-full appearance-none m-0 bg-gray-100 rounded-xl p-3 text-sm font-bold outline-none text-gray-900">
+                </div>
+                
+                <div class="border-t border-gray-100 my-2 pt-2">
+                    <p class="text-xs text-blue-500 font-bold mb-3">配置更新</p>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">当前实际库存 (粒)</label>
+                            <input type="number" id="inStock" class="w-full appearance-none m-0 bg-blue-50 text-blue-800 rounded-xl p-3 text-sm font-bold outline-none">
+                            <p class="text-[10px] text-gray-400 mt-1">保存将重置自动扣减时间</p>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">下次复查</label>
+                            <input type="date" id="inNextVisit" class="w-full appearance-none m-0 bg-blue-50 text-blue-800 rounded-xl p-3 text-sm font-bold outline-none border-none">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="saveEntryData()" id="btnSave" class="w-full mt-6 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30">保存</button>
+        </div>
+    </div>
+
+    <div id="historyModal" class="fixed inset-0 bg-white z-50 hidden overflow-y-auto">
+        <div class="p-4 max-w-sm mx-auto">
+            <div class="flex justify-between items-center mb-6 mt-2">
+                <h2 class="text-xl font-bold">服药历史</h2>
+                <button onclick="document.getElementById('historyModal').classList.add('hidden')" class="bg-gray-100 p-2 rounded-full text-sm font-bold text-gray-600">关闭</button>
+            </div>
+            <div id="historyList" class="space-y-2 pb-20"></div>
+        </div>
+    </div>
+
+    <div id="labHistoryModal" class="fixed inset-0 bg-white z-50 hidden overflow-y-auto">
+        <div class="p-4 max-w-sm mx-auto">
+            <div class="flex justify-between items-center mb-6 mt-2">
+                <h2 class="text-xl font-bold" id="labHistoryTitle">化验记录</h2>
+                <button onclick="document.getElementById('labHistoryModal').classList.add('hidden')" class="bg-gray-100 p-2 rounded-full text-sm font-bold text-gray-600">关闭</button>
+            </div>
+            <div class="border-b border-gray-100 pb-2 mb-2 flex justify-between text-xs font-bold text-gray-400 px-2">
+                <span>日期</span>
+                <span id="labHistoryHeader">数值</span>
+            </div>
+            <div id="labHistoryList" class="space-y-2 pb-20"></div>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-6">
+        <div class="bg-white w-full rounded-2xl p-6 shadow-2xl">
+            <h2 class="text-lg font-bold mb-4">Github 连接</h2>
+            <div class="space-y-3">
+                <input type="text" id="cfgUser" class="w-full bg-gray-100 rounded-lg p-3 text-sm" placeholder="Github Username">
+                <input type="text" id="cfgRepo" class="w-full bg-gray-100 rounded-lg p-3 text-sm" placeholder="Repository Name">
+                <input type="password" id="cfgToken" class="w-full bg-gray-100 rounded-lg p-3 text-sm" placeholder="Access Token">
+            </div>
+            <button onclick="saveSettings()" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm">保存并连接</button>
+            <button onclick="document.getElementById('settingsModal').classList.add('hidden')" class="w-full mt-2 text-gray-400 text-sm py-2">取消</button>
+        </div>
+    </div>
+
+    <div id="errorBox" class="hidden fixed top-20 left-4 right-4 bg-red-500 text-white p-3 rounded-xl shadow-xl z-[60] text-sm font-bold text-center transition-all"></div>
+
+    <script>
+        const CACHE_KEY = 'cml_config_v10';
+        let config = JSON.parse(localStorage.getItem(CACHE_KEY));
+        let appData = { tixing: null, chiyao: [], tijian: [] };
+
+        function startClock() {
+            const update = () => { document.getElementById('realTimeClock').innerText = dayjs().format('M月D日 dddd HH:mm:ss'); };
+            update(); setInterval(update, 1000);
+        }
+
+        function setGhStatus(status) {
+            const dot = document.getElementById('ghStatusDot');
+            dot.className = "w-2 h-2 rounded-full transition-colors duration-500";
+            if (status === 'success') dot.classList.add('bg-green-500', 'shadow-[0_0_8px_rgba(34,197,94,0.6)]');
+            else if (status === 'error') dot.classList.add('bg-red-500');
+            else dot.classList.add('bg-orange-400', 'animate-pulse');
+        }
+
+        async function init() {
+            startClock();
+            setGhStatus('loading');
+            if (!config) { openSettings(); return; }
+            setLoading(true);
+            try {
+                await loadFile('tixing.json', 'tixing');
+                await loadFile('chiyao.json', 'chiyao');
+                await loadFile('tijian.json', 'tijian');
+                renderUI();
+                setGhStatus('success');
+            } catch (err) {
+                showError("同步失败: " + err.message);
+                setGhStatus('error');
+            }
+            setLoading(false);
+        }
+
+        async function loadFile(filename, key) {
+            const res = await fetch(`https://api.github.com/repos/${config.user}/${config.repo}/contents/${filename}`, {
+                headers: { 'Authorization': `token ${config.token}`, 'Accept': 'application/vnd.github.v3+json' }, cache: "no-store"
+            });
+            if (!res.ok) throw new Error(filename + " " + res.status);
+            const json = await res.json();
+            appData[key] = JSON.parse(decodeURIComponent(escape(window.atob(json.content))));
+        }
+
+        async function saveFile(filename, contentObj) {
+            const url = `https://api.github.com/repos/${config.user}/${config.repo}/contents/${filename}`;
+            const getRes = await fetch(url, { headers: { 'Authorization': `token ${config.token}` }, cache: "no-store" });
+            if(!getRes.ok) throw new Error(`无法获取 ${filename} 最新版本`);
+            const getJson = await getRes.json();
+            
+            const contentBase64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(contentObj, null, 2))));
+            const res = await fetch(url, {
+                method: 'PUT',
+                headers: { 'Authorization': `token ${config.token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: `Update ${filename}`, content: contentBase64, sha: getJson.sha })
+            });
+            if (!res.ok) throw new Error("保存失败");
+        }
+
+        async function checkIn(type) {
+            setLoading(true);
+            try {
+                const today = dayjs().format('YYYY-MM-DD');
+                if (!Array.isArray(appData.chiyao)) appData.chiyao = [];
+                let log = appData.chiyao.find(l => l.date === today);
+                if (!log) { log = { date: today, taken_am: false, time_am: "", taken_pm: false, time_pm: "", water_count: 0 }; appData.chiyao.push(log); }
+
+                // 防止重复提交
+                if ((type === 'am' && log.taken_am) || (type === 'pm' && log.taken_pm)) { setLoading(false); return; }
+                
+                if (type === 'am') { log.taken_am = true; log.time_am = dayjs().format('HH:mm'); }
+                if (type === 'pm') { log.taken_pm = true; log.time_pm = dayjs().format('HH:mm'); }
+
+                await saveFile('chiyao.json', appData.chiyao);
+                
+                renderUI(); setGhStatus('success');
+            } catch (e) { showError(e.message); setGhStatus('error'); }
+            setLoading(false);
+        }
+
+        async function updateWater(delta) {
+            const today = dayjs().format('YYYY-MM-DD');
+            let log = appData.chiyao.find(l => l.date === today);
+            if (!log) { log = { date: today, taken_am: false, taken_pm: false, water_count: 0 }; appData.chiyao.push(log); }
+            log.water_count = (log.water_count || 0) + delta;
+            document.getElementById('waterCount').innerText = log.water_count;
+            try { await saveFile('chiyao.json', appData.chiyao); } catch(e){}
+        }
+
+        function calculateStock() {
+            if (!appData.tixing || !appData.tixing.total_pills) return 0;
+            if (!appData.tixing.stock_last_save) return appData.tixing.total_pills;
+            const lastSave = dayjs(appData.tixing.stock_last_save);
+            const now = dayjs();
+            const hoursPassed = now.diff(lastSave, 'hour');
+            const deductions = Math.floor(hoursPassed / 12);
+            const consumed = deductions * 2;
+            return Math.max(0, appData.tixing.total_pills - consumed);
+        }
+
+        function renderUI() {
+            const today = dayjs().format('YYYY-MM-DD');
+            const log = appData.chiyao.find(l => l.date === today) || {};
+            
+            const updateBtn = (type, taken, time) => {
+                const cap = type.charAt(0).toUpperCase() + type.slice(1);
+                const el = document.getElementById(`check${cap}`);
+                const tm = document.getElementById(`time${cap}`);
+                if(taken) { el.classList.remove('hidden'); el.classList.add('flex'); tm.innerText=time; } else { el.classList.add('hidden'); el.classList.remove('flex'); tm.innerText=""; }
+            };
+            updateBtn('am', log.taken_am, log.time_am);
+            updateBtn('pm', log.taken_pm, log.time_pm);
+            const card = document.getElementById('medCard');
+            if(log.taken_am && log.taken_pm) card.className = "card shadow-apple bg-gradient-to-br from-emerald-500 to-green-500 text-white relative overflow-hidden transition-all duration-500";
+            else card.className = "card shadow-apple bg-gradient-to-br from-blue-500 to-indigo-600 text-white relative overflow-hidden transition-all duration-500";
+
+            document.getElementById('waterCount').innerText = log.water_count || 0;
+            
+            const calculatedStock = calculateStock();
+            document.getElementById('stockCount').innerText = calculatedStock;
+            document.getElementById('stockBar').style.width = `${Math.min(100, (calculatedStock / 120) * 100)}%`;
+            
+            const daysLeft = Math.max(0, dayjs(appData.tixing.next_visit_date).diff(dayjs(), 'day'));
+            document.getElementById('daysUntil').innerText = daysLeft;
+            const maxRevisitDays = 30; 
+            const revisitPercent = Math.min(100, (daysLeft / maxRevisitDays) * 100);
+            document.getElementById('daysBar').style.width = `${revisitPercent}%`;
+            document.getElementById('visitDate').innerText = dayjs(appData.tixing.next_visit_date).format('YYYY-MM-DD');
+
+            renderWeekHistory();
+            renderCharts();
+        }
+
+        function renderWeekHistory() {
+            const container = document.getElementById('weekHistory');
+            container.innerHTML = '';
+            for(let i=6; i>=0; i--) {
+                const d = dayjs().subtract(i, 'day');
+                const log = appData.chiyao.find(l=>l.date===d.format('YYYY-MM-DD'));
+                const isToday = i===0;
+                const dot = (taken) => `w-2 h-2 rounded-full ${taken ? 'bg-green-500' : (isToday ? 'bg-gray-200 border border-gray-300' : 'bg-red-400 opacity-30')}`;
+                container.innerHTML += `<div class="flex flex-col items-center gap-1"><span class="text-[10px] text-gray-400 font-bold">${d.format('DD')}</span><div class="${dot(log?.taken_am)}"></div><div class="${dot(log?.taken_pm)}"></div></div>`;
+            }
+        }
+
+        function renderCharts() {
+            const oneYearAgo = dayjs().subtract(1, 'year');
+            const data = [...appData.tijian]
+                .filter(d => dayjs(d.date).isAfter(oneYearAgo))
+                .sort((a,b)=>dayjs(a.date).diff(dayjs(b.date)));
+            
+            const labels = data.map(d=>dayjs(d.date).format('MM/DD'));
+
+            const bcrData = data.map(d => {
+                let val = parseFloat(d.bcr_abl);
+                if(isNaN(val)) return null;
+                return val <= 0 ? 0.0001 : val; 
+            });
+
+            const commonOpts = { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} };
+
+            if(window.myBcrChart) window.myBcrChart.destroy();
+            window.myBcrChart = new Chart(document.getElementById('chartBcr').getContext('2d'), {
+                type: 'line',
+                data: { labels, datasets: [{ 
+                    label: 'BCR-ABL', data: bcrData, 
+                    borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', 
+                    fill:true, tension:0.3, spanGaps: true 
+                }] },
+                options: { ...commonOpts, scales:{ y:{type:'logarithmic', grid:{borderDash:[4,4]}}, x:{grid:{display:false}} } }
+            });
+
+            // 定义背景安全区间插件
+            const safetyZonesPlugin = {
+                id: 'safetyZones',
+                beforeDraw: (chart) => {
+                    const { ctx, chartArea: { left, top, right, bottom, width, height }, scales: { y, y1 } } = chart;
+                    
+                    // 1. 绘制白细胞安全区间 (WBC: 3.5 - 9.5) - 淡绿色
+                    if(y) {
+                        // 注意: Chart.js 坐标系中 y 轴是向下的，数值越大 pixel 越小
+                        const yTop = y.getPixelForValue(9.5); 
+                        const yBottom = y.getPixelForValue(3.5);
+                        
+                        // 确保绘制在图表区域内
+                        if (yBottom > top && yTop < bottom) {
+                            ctx.save();
+                            ctx.fillStyle = 'rgba(16, 185, 129, 0.1)'; // 淡绿色
+                            const rectTop = Math.max(top, yTop);
+                            const rectBottom = Math.min(bottom, yBottom);
+                            if(rectBottom > rectTop) {
+                                ctx.fillRect(left, rectTop, width, rectBottom - rectTop);
+                            }
+                            ctx.restore();
+                        }
+                    }
+
+                    // 2. 绘制血小板安全区间 (PLT: 125 - 350) - 淡橙色
+                    if(y1) {
+                        const y1Top = y1.getPixelForValue(350);
+                        const y1Bottom = y1.getPixelForValue(125);
+                        
+                        if (y1Bottom > top && y1Top < bottom) {
+                            ctx.save();
+                            ctx.fillStyle = 'rgba(245, 158, 11, 0.1)'; // 淡橙色
+                            const rectTop = Math.max(top, y1Top);
+                            const rectBottom = Math.min(bottom, y1Bottom);
+                            if(rectBottom > rectTop) {
+                                ctx.fillRect(left, rectTop, width, rectBottom - rectTop);
+                            }
+                            ctx.restore();
+                        }
+                    }
+                }
+            };
+
+            if(window.myBloodChart) window.myBloodChart.destroy();
+            window.myBloodChart = new Chart(document.getElementById('chartBlood').getContext('2d'), {
+                type: 'line',
+                data: { labels, datasets: [
+                    { label: 'WBC', data: data.map(d=>d.wbc), borderColor: '#10b981', backgroundColor: '#10b981', tension:0.3, yAxisID:'y', spanGaps: true },
+                    { label: 'PLT', data: data.map(d=>d.plt), borderColor: '#f59e0b', backgroundColor: '#f59e0b', tension:0.3, yAxisID:'y1', spanGaps: true }
+                ]},
+                plugins: [safetyZonesPlugin], // 注册自定义插件
+                options: { 
+                    ...commonOpts,
+                    interaction:{mode:'index', intersect:false},
+                    scales:{ 
+                        y:{
+                            position:'left', 
+                            grid:{borderDash:[4,4]},
+                            // 左侧坐标轴 (白细胞) 设置为绿色
+                            ticks: { color: '#10b981' }, 
+                            border: { color: '#10b981', display: true }
+                        }, 
+                        y1:{
+                            position:'right', 
+                            grid:{display:false},
+                            // 右侧坐标轴 (血小板) 设置为橙色
+                            ticks: { color: '#f59e0b' },
+                            border: { color: '#f59e0b', display: true }
+                        }, 
+                        x:{grid:{display:false}} 
+                    }
+                }
+            });
+        }
+
+        function showHistoryModal() {
+            const list = document.getElementById('historyList');
+            list.innerHTML = '';
+            appData.chiyao.slice().reverse().slice(0,60).forEach(l => {
+                const amTime = l.taken_am ? l.time_am : '未服';
+                const pmTime = l.taken_pm ? l.time_pm : '未服';
+                const amStyle = l.taken_am ? 'text-green-600 bg-green-50' : 'text-red-400 bg-red-50 opacity-60';
+                const pmStyle = l.taken_pm ? 'text-indigo-600 bg-indigo-50' : 'text-red-400 bg-red-50 opacity-60';
+                list.innerHTML += `<div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2"><div class="font-bold text-gray-700 text-sm w-16">${dayjs(l.date).format('MM/DD')}</div><div class="flex gap-2 flex-1 justify-end"><span class="text-xs px-2 py-1 rounded-md font-bold ${amStyle}">☀️ ${amTime}</span><span class="text-xs px-2 py-1 rounded-md font-bold ${pmStyle}">🌙 ${pmTime}</span></div></div>`;
+            });
+            document.getElementById('historyModal').classList.remove('hidden');
+        }
+
+        function showLabHistory(type) {
+            const list = document.getElementById('labHistoryList');
+            const title = document.getElementById('labHistoryTitle');
+            const header = document.getElementById('labHistoryHeader');
+            list.innerHTML = '';
+            const data = [...appData.tijian].sort((a,b)=>dayjs(b.date).diff(dayjs(a.date)));
+
+            if (type === 'bcr') {
+                title.innerText = "融合基因历史 (BCR-ABL)";
+                header.innerText = "结果 (%)";
+                data.forEach(d => {
+                    if (d.bcr_abl !== null && d.bcr_abl !== undefined) {
+                        list.innerHTML += `<div class="flex justify-between items-center p-3 bg-blue-50/50 rounded-xl border border-blue-100 mb-2"><span class="font-bold text-gray-700">${d.date}</span><span class="font-mono font-bold text-blue-600 text-lg">${d.bcr_abl}%</span></div>`;
+                    }
+                });
+            } else {
+                title.innerText = "血常规历史";
+                header.innerText = "WBC / PLT";
+                data.forEach(d => {
+                    if (d.wbc || d.plt) {
+                        list.innerHTML += `<div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2"><span class="font-bold text-gray-700">${d.date}</span><div class="flex gap-3"><span class="text-emerald-600 font-bold">W: ${d.wbc||'-'}</span><span class="text-amber-500 font-bold">P: ${d.plt||'-'}</span></div></div>`;
+                    }
+                });
+            }
+            document.getElementById('labHistoryModal').classList.remove('hidden');
+        }
+
+        function openEntryModal() {
+            document.getElementById('entryModal').classList.remove('hidden');
+            document.getElementById('inDate').value = dayjs().format('YYYY-MM-DD');
+            document.getElementById('inStock').value = calculateStock();
+            document.getElementById('inNextVisit').value = appData.tixing.next_visit_date;
+        }
+        function closeEntryModal() { document.getElementById('entryModal').classList.add('hidden'); }
+        
+        async function saveEntryData() {
+            const btn = document.getElementById('btnSave');
+            btn.innerText = "提交中..."; btn.disabled = true;
+            try {
+                const date = document.getElementById('inDate').value;
+                const wbc = document.getElementById('inWbc').value;
+                const plt = document.getElementById('inPlt').value;
+                const bcr = document.getElementById('inBcr').value;
+                
+                if(wbc||bcr||plt) {
+                    appData.tijian.push({ 
+                        date, 
+                        wbc: wbc?parseFloat(wbc):null, 
+                        plt: plt?parseFloat(plt):null,
+                        bcr_abl: bcr?parseFloat(bcr):null 
+                    });
+                }
+                
+                const stock = parseInt(document.getElementById('inStock').value);
+                if(!isNaN(stock)) {
+                    appData.tixing.total_pills = stock;
+                    appData.tixing.stock_last_save = dayjs().toISOString(); 
+                }
+                appData.tixing.next_visit_date = document.getElementById('inNextVisit').value;
+
+                await Promise.all([saveFile('tijian.json', appData.tijian), saveFile('tixing.json', appData.tixing)]);
+                location.reload(); 
+            } catch(e) { 
+                console.error(e);
+                location.reload(); 
+            }
+        }
+
+        function openSettings() { document.getElementById('settingsModal').classList.remove('hidden'); }
+        function saveSettings() {
+            const u=document.getElementById('cfgUser').value, r=document.getElementById('cfgRepo').value, t=document.getElementById('cfgToken').value;
+            if(u&&r&&t) { localStorage.setItem(CACHE_KEY, JSON.stringify({user:u, repo:r, token:t})); location.reload(); }
+        }
+        function showError(msg) { const b=document.getElementById('errorBox'); b.innerText=msg; b.classList.remove('hidden'); setTimeout(()=>b.classList.add('hidden'),3000); }
+        function setLoading(b) { document.getElementById('loadingOverlay').classList[b?'remove':'add']('hidden'); }
+        if(config) { document.getElementById('cfgUser').value=config.user; document.getElementById('cfgRepo').value=config.repo; document.getElementById('cfgToken').value=config.token; }
+
+        init();
+    </script>
+</body>
+</html>

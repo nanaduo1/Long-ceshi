@@ -1,0 +1,82 @@
+[
+  {
+    "date": "2026-01-10",
+    "taken_am": true,
+    "time_am": "08:15",
+    "taken_pm": false,
+    "time_pm": "20:30",
+    "water_count": 8
+  },
+  {
+    "date": "2026-01-11",
+    "taken_am": true,
+    "time_am": "09:00",
+    "taken_pm": true,
+    "time_pm": "21:00",
+    "water_count": 7
+  },
+  {
+    "date": "2026-01-12",
+    "taken_am": false,
+    "time_am": "",
+    "taken_pm": true,
+    "time_pm": "20:15",
+    "water_count": 5
+  },
+  {
+    "date": "2026-01-13",
+    "taken_am": true,
+    "time_am": "08:05",
+    "taken_pm": true,
+    "time_pm": "20:10",
+    "water_count": 9
+  },
+  {
+    "date": "2026-01-14",
+    "taken_am": true,
+    "time_am": "08:10",
+    "taken_pm": true,
+    "time_pm": "20:20",
+    "water_count": 8
+  },
+  {
+    "date": "2026-01-15",
+    "taken_am": true,
+    "time_am": "08:30",
+    "taken_pm": true,
+    "time_pm": "20:20",
+    "water_count": 6
+  },
+  {
+    "date": "2026-01-16",
+    "taken_am": true,
+    "time_am": "08:00",
+    "taken_pm": true,
+    "time_pm": "20:20",
+    "water_count": 3
+  },
+  {
+    "date": "2026-01-17",
+    "taken_am": true,
+    "time_am": "10:30",
+    "taken_pm": true,
+    "time_pm": "22:06",
+    "water_count": 1
+  },
+  {
+    "date": "2026-01-18",
+    "taken_am": true,
+    "time_am": "09:52",
+    "taken_pm": true,
+    "time_pm": "22:00",
+    "water_count": 1
+  },
+  {
+    "date": "2026-01-19",
+    "taken_am": true,
+    "time_am": "11:05",
+    "taken_pm": true,
+    "time_pm": "22:44",
+    "water_count": 0
+  }
+]
