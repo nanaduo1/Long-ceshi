@@ -2,10 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport"
-content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>老婆万岁</title>
     <link rel="manifest" href="/manifest.json">
+    <!-- 关键：设置主题色，让手机状态栏与加载背景融为一体，避免白屏 -->
+    <meta name="theme-color" content="#667eea">
 
     <!-- 添加到手机主屏幕的图标 -->
     <link rel="apple-touch-icon" href="/images/icon.png">
@@ -20,31 +21,122 @@ content="width=device-width, initial-scale=1, viewport-fit=cover">
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", Helvetica, Arial, sans-serif; 
             background-color: #F2F2F7; color: #1c1c1e; padding-bottom: 100px;
             -webkit-tap-highlight-color: transparent;
+            /* 防止iOS回弹效果露出白色背景 */
+            overscroll-behavior-y: none;
         }
         .shadow-apple { box-shadow: 0 4px 20px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.03); }
         .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; }
         .spinner { border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* 弹窗动画 */
         .animate-slide-up { animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
-        /* 强制移除 iOS 日期输入框默认样式 */
-        input[type="date"] {
-            -webkit-appearance: none;
-            appearance: none;
-            min-height: 44px; /* 统一高度 */
+        input[type="date"], input[type="number"] {
+            -webkit-appearance: none; appearance: none; min-height: 44px;
         }
-        input[type="number"] {
-            -webkit-appearance: none;
-            appearance: none;
-            min-height: 44px;
+
+        /* --- 加载屏样式 (Loading Screen) --- */
+        #splashScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            /* 蓝紫渐变背景 */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 9999; /* 确保在最顶层 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            transition: opacity 0.6s ease-out, visibility 0.6s;
         }
+
+        /* 容器 */
+        .loader-container {
+            position: relative;
+            width: 140px; height: 140px;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+        }
+        .heart-svg { width: 100%; height: 100%; overflow: visible; }
+
+        /* 液体动画 */
+        .liquid-group { clip-path: url(#heartClip); }
+        .liquid-fill { fill: url(#liquidGradient); }
+        .wave {
+            animation: wave-move 1.5s linear infinite;
+            transform-origin: 50% 50%;
+        }
+        @keyframes wave-move {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* 玻璃质感 */
+        .glass-body {
+            fill: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(2px);
+        }
+        .glass-stroke {
+            fill: none; stroke: rgba(255, 255, 255, 0.6); stroke-width: 2;
+            filter: drop-shadow(0 0 2px rgba(255,255,255,0.5));
+        }
+        .highlight-large { fill: url(#shineGradient); opacity: 0.8; pointer-events: none; }
+        .highlight-small { fill: white; opacity: 0.9; filter: blur(1px); }
+
+        /* 底部文字 */
+        .loading-text {
+            margin-top: 30px;
+            font-size: 16px; font-weight: bold; letter-spacing: 1.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .dots::after { content: ''; animation: dots-anim 1.5s infinite steps(4, end); }
+        @keyframes dots-anim {
+            0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; }
+        }
+        #percentText { font-family: monospace; opacity: 0.8; font-size: 14px; }
+
     </style>
     <script>dayjs.locale('zh-cn');</script>
 </head>
 <body class="p-4 max-w-sm mx-auto">
 
+    <!-- 全屏加载层 (Splash Screen) -->
+    <div id="splashScreen">
+        <div class="loader-container">
+            <svg class="heart-svg" viewBox="0 0 100 90">
+                <defs>
+                    <path id="heartPath" d="M50,88 C50,88 12,65 12,35 C12,18 25,12 35,12 C42,12 48,16 50,22 C52,16 58,12 65,12 C75,12 88,18 88,35 C88,65 50,88 50,88 Z" />
+                    <clipPath id="heartClip"><use href="#heartPath" /></clipPath>
+                    <linearGradient id="liquidGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#d63031;stop-opacity:1" />
+                    </linearGradient>
+                    <linearGradient id="shineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+                        <stop offset="50%" style="stop-color:#ffffff;stop-opacity:0.1" />
+                        <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+                    </linearGradient>
+                </defs>
+                <use href="#heartPath" class="glass-body" />
+                <g class="liquid-group">
+                    <g id="waveContainer" transform="translate(0, 90)">
+                        <path class="wave" fill="url(#liquidGradient)" d="M0,0 C20,-4 30,-4 50,0 C70,4 80,4 100,0 C120,-4 130,-4 150,0 V100 H0 Z" transform="scale(2, 1)" />
+                        <rect x="0" y="0" width="300" height="100" fill="url(#liquidGradient)" />
+                    </g>
+                </g>
+                <use href="#heartPath" class="glass-stroke" />
+                <path d="M35,16 C25,16 16,22 16,35" fill="none" stroke="white" stroke-width="3" opacity="0.4" stroke-linecap="round" />
+                <ellipse cx="70" cy="25" rx="6" ry="3" transform="rotate(-30, 70, 25)" class="highlight-large" />
+                <circle cx="75" cy="20" r="1.5" fill="white" opacity="0.9" />
+            </svg>
+        </div>
+        <div class="loading-text">
+            老公的爱心加载中<span class="dots"></span> 
+            <span id="percentText">0%</span>
+        </div>
+    </div>
+
+    <!-- 主界面内容 -->
     <div class="mt-4 mb-5 flex justify-between items-center px-1">
         <div>
             <div class="flex items-center gap-2 mb-1">
@@ -325,6 +417,82 @@ content="width=device-width, initial-scale=1, viewport-fit=cover">
         let config = JSON.parse(localStorage.getItem(CACHE_KEY));
         let appData = { tixing: null, chiyao: [], tijian: [] };
 
+        // --- 核心：初始化逻辑 ---
+        async function init() {
+            startClock();
+            
+            // 1. 如果没有配置，直接移除加载屏并打开设置，不进行等待
+            if (!config) { 
+                removeSplash();
+                openSettings(); 
+                return; 
+            }
+            
+            // 2. 启动液体填充动画（在后台运行）
+            startLiquidAnimation(3000); // 3秒填满
+
+            // 3. 并行执行：A. 最小等待时间 3秒  B. 加载数据
+            const minWait = new Promise(resolve => setTimeout(resolve, 3000));
+            
+            const loadData = (async () => {
+                try {
+                    setGhStatus('loading');
+                    await loadFile('tixing.json', 'tixing');
+                    await loadFile('chiyao.json', 'chiyao');
+                    await loadFile('tijian.json', 'tijian');
+                    setGhStatus('success');
+                } catch (err) {
+                    showError("同步失败: " + err.message);
+                    setGhStatus('error');
+                }
+            })();
+
+            // 4. 等待两者都完成
+            await Promise.all([minWait, loadData]);
+
+            // 5. 渲染界面并移除加载屏
+            renderUI();
+            removeSplash();
+        }
+
+        // --- 液体动画控制 ---
+        function startLiquidAnimation(duration) {
+            const waveContainer = document.getElementById('waveContainer');
+            const percentText = document.getElementById('percentText');
+            // SVG Y轴坐标：90是空(底)，8是满(顶)
+            const emptyY = 90, fullY = 8;
+            let progress = 0;
+            const interval = 20;
+            const step = 100 / (duration / interval);
+
+            const timer = setInterval(() => {
+                progress += step;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(timer);
+                }
+                if(percentText) percentText.innerText = Math.floor(progress) + "%";
+                if(waveContainer) {
+                    const currentY = emptyY - ((emptyY - fullY) * (progress / 100));
+                    waveContainer.setAttribute("transform", `translate(0, ${currentY})`);
+                }
+            }, interval);
+        }
+
+        // --- 移除加载屏 ---
+        function removeSplash() {
+            const splash = document.getElementById('splashScreen');
+            if(splash) {
+                // 淡出并放大一点点，效果更现代
+                splash.style.transform = "scale(1.05)";
+                splash.style.opacity = '0';
+                setTimeout(() => { 
+                    splash.style.visibility = 'hidden'; 
+                    splash.style.display = 'none'; // 彻底移除布局占用
+                }, 600);
+            }
+        }
+
         function startClock() {
             const update = () => { document.getElementById('realTimeClock').innerText = dayjs().format('M月D日 dddd HH:mm:ss'); };
             update(); setInterval(update, 1000);
@@ -332,28 +500,11 @@ content="width=device-width, initial-scale=1, viewport-fit=cover">
 
         function setGhStatus(status) {
             const dot = document.getElementById('ghStatusDot');
+            if(!dot) return;
             dot.className = "w-2 h-2 rounded-full transition-colors duration-500";
             if (status === 'success') dot.classList.add('bg-green-500', 'shadow-[0_0_8px_rgba(34,197,94,0.6)]');
             else if (status === 'error') dot.classList.add('bg-red-500');
             else dot.classList.add('bg-orange-400', 'animate-pulse');
-        }
-
-        async function init() {
-            startClock();
-            setGhStatus('loading');
-            if (!config) { openSettings(); return; }
-            setLoading(true);
-            try {
-                await loadFile('tixing.json', 'tixing');
-                await loadFile('chiyao.json', 'chiyao');
-                await loadFile('tijian.json', 'tijian');
-                renderUI();
-                setGhStatus('success');
-            } catch (err) {
-                showError("同步失败: " + err.message);
-                setGhStatus('error');
-            }
-            setLoading(false);
         }
 
         async function loadFile(filename, key) {
@@ -388,7 +539,6 @@ content="width=device-width, initial-scale=1, viewport-fit=cover">
                 let log = appData.chiyao.find(l => l.date === today);
                 if (!log) { log = { date: today, taken_am: false, time_am: "", taken_pm: false, time_pm: "", water_count: 0 }; appData.chiyao.push(log); }
 
-                // 防止重复提交
                 if ((type === 'am' && log.taken_am) || (type === 'pm' && log.taken_pm)) { setLoading(false); return; }
                 
                 if (type === 'am') { log.taken_am = true; log.time_am = dayjs().format('HH:mm'); }
@@ -493,44 +643,32 @@ content="width=device-width, initial-scale=1, viewport-fit=cover">
                 options: { ...commonOpts, scales:{ y:{type:'logarithmic', grid:{borderDash:[4,4]}}, x:{grid:{display:false}} } }
             });
 
-            // 定义背景安全区间插件
             const safetyZonesPlugin = {
                 id: 'safetyZones',
                 beforeDraw: (chart) => {
                     const { ctx, chartArea: { left, top, right, bottom, width, height }, scales: { y, y1 } } = chart;
                     
-                    // 1. 绘制白细胞安全区间 (WBC: 3.5 - 9.5) - 淡绿色
                     if(y) {
-                        // 注意: Chart.js 坐标系中 y 轴是向下的，数值越大 pixel 越小
                         const yTop = y.getPixelForValue(9.5); 
                         const yBottom = y.getPixelForValue(3.5);
-                        
-                        // 确保绘制在图表区域内
                         if (yBottom > top && yTop < bottom) {
                             ctx.save();
-                            ctx.fillStyle = 'rgba(16, 185, 129, 0.1)'; // 淡绿色
+                            ctx.fillStyle = 'rgba(16, 185, 129, 0.1)'; 
                             const rectTop = Math.max(top, yTop);
                             const rectBottom = Math.min(bottom, yBottom);
-                            if(rectBottom > rectTop) {
-                                ctx.fillRect(left, rectTop, width, rectBottom - rectTop);
-                            }
+                            if(rectBottom > rectTop) ctx.fillRect(left, rectTop, width, rectBottom - rectTop);
                             ctx.restore();
                         }
                     }
-
-                    // 2. 绘制血小板安全区间 (PLT: 125 - 350) - 淡橙色
                     if(y1) {
                         const y1Top = y1.getPixelForValue(350);
                         const y1Bottom = y1.getPixelForValue(125);
-                        
                         if (y1Bottom > top && y1Top < bottom) {
                             ctx.save();
-                            ctx.fillStyle = 'rgba(245, 158, 11, 0.1)'; // 淡橙色
+                            ctx.fillStyle = 'rgba(245, 158, 11, 0.1)'; 
                             const rectTop = Math.max(top, y1Top);
                             const rectBottom = Math.min(bottom, y1Bottom);
-                            if(rectBottom > rectTop) {
-                                ctx.fillRect(left, rectTop, width, rectBottom - rectTop);
-                            }
+                            if(rectBottom > rectTop) ctx.fillRect(left, rectTop, width, rectBottom - rectTop);
                             ctx.restore();
                         }
                     }
@@ -544,24 +682,18 @@ content="width=device-width, initial-scale=1, viewport-fit=cover">
                     { label: 'WBC', data: data.map(d=>d.wbc), borderColor: '#10b981', backgroundColor: '#10b981', tension:0.3, yAxisID:'y', spanGaps: true },
                     { label: 'PLT', data: data.map(d=>d.plt), borderColor: '#f59e0b', backgroundColor: '#f59e0b', tension:0.3, yAxisID:'y1', spanGaps: true }
                 ]},
-                plugins: [safetyZonesPlugin], // 注册自定义插件
+                plugins: [safetyZonesPlugin], 
                 options: { 
                     ...commonOpts,
                     interaction:{mode:'index', intersect:false},
                     scales:{ 
                         y:{
-                            position:'left', 
-                            grid:{borderDash:[4,4]},
-                            // 左侧坐标轴 (白细胞) 设置为绿色
-                            ticks: { color: '#10b981' }, 
-                            border: { color: '#10b981', display: true }
+                            position:'left', grid:{borderDash:[4,4]},
+                            ticks: { color: '#10b981' }, border: { color: '#10b981', display: true }
                         }, 
                         y1:{
-                            position:'right', 
-                            grid:{display:false},
-                            // 右侧坐标轴 (血小板) 设置为橙色
-                            ticks: { color: '#f59e0b' },
-                            border: { color: '#f59e0b', display: true }
+                            position:'right', grid:{display:false},
+                            ticks: { color: '#f59e0b' }, border: { color: '#f59e0b', display: true }
                         }, 
                         x:{grid:{display:false}} 
                     }
@@ -627,27 +759,17 @@ content="width=device-width, initial-scale=1, viewport-fit=cover">
                 const bcr = document.getElementById('inBcr').value;
                 
                 if(wbc||bcr||plt) {
-                    appData.tijian.push({ 
-                        date, 
-                        wbc: wbc?parseFloat(wbc):null, 
-                        plt: plt?parseFloat(plt):null,
-                        bcr_abl: bcr?parseFloat(bcr):null 
-                    });
+                    appData.tijian.push({ date, wbc: wbc?parseFloat(wbc):null, plt: plt?parseFloat(plt):null, bcr_abl: bcr?parseFloat(bcr):null });
                 }
-                
                 const stock = parseInt(document.getElementById('inStock').value);
                 if(!isNaN(stock)) {
                     appData.tixing.total_pills = stock;
                     appData.tixing.stock_last_save = dayjs().toISOString(); 
                 }
                 appData.tixing.next_visit_date = document.getElementById('inNextVisit').value;
-
                 await Promise.all([saveFile('tijian.json', appData.tijian), saveFile('tixing.json', appData.tixing)]);
                 location.reload(); 
-            } catch(e) { 
-                console.error(e);
-                location.reload(); 
-            }
+            } catch(e) { console.error(e); location.reload(); }
         }
 
         function openSettings() { document.getElementById('settingsModal').classList.remove('hidden'); }
