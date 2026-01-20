@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>老婆万岁</title>
     <link rel="manifest" href="/manifest.json">
-    <!-- 关键：设置主题色，让手机状态栏与加载背景融为一体，避免白屏 -->
     <meta name="theme-color" content="#667eea">
-
-    <!-- 添加到手机主屏幕的图标 -->
     <link rel="apple-touch-icon" href="/images/icon.png">
     <link rel="shortcut icon" href="/images/icon.png">
     
@@ -21,7 +18,6 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", Helvetica, Arial, sans-serif; 
             background-color: #F2F2F7; color: #1c1c1e; padding-bottom: 100px;
             -webkit-tap-highlight-color: transparent;
-            /* 防止iOS回弹效果露出白色背景 */
             overscroll-behavior-y: none;
         }
         .shadow-apple { box-shadow: 0 4px 20px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.03); }
@@ -35,72 +31,32 @@
             -webkit-appearance: none; appearance: none; min-height: 44px;
         }
 
-        /* --- 加载屏样式 (Loading Screen) --- */
+        /* --- 加载屏样式 --- */
         #splashScreen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            /* 蓝紫渐变背景 */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #72feb7 0%, #49d3c0 100%);
-            z-index: 9999; /* 确保在最顶层 */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
+            z-index: 9999; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; color: white;
             transition: opacity 0.6s ease-out, visibility 0.6s;
         }
-
-        /* 容器 */
-        .loader-container {
-            position: relative;
-            width: 140px; height: 140px;
-            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
-        }
+        .loader-container { position: relative; width: 140px; height: 140px; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3)); }
         .heart-svg { width: 100%; height: 100%; overflow: visible; }
-
-        /* 液体动画 */
         .liquid-group { clip-path: url(#heartClip); }
-        .liquid-fill { fill: url(#liquidGradient); }
-        .wave {
-            animation: wave-move 1.5s linear infinite;
-            transform-origin: 50% 50%;
-        }
-        @keyframes wave-move {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-
-        /* 玻璃质感 */
-        .glass-body {
-            fill: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(2px);
-        }
-        .glass-stroke {
-            fill: none; stroke: rgba(255, 255, 255, 0.6); stroke-width: 2;
-            filter: drop-shadow(0 0 2px rgba(255,255,255,0.5));
-        }
+        .wave { animation: wave-move 1.5s linear infinite; transform-origin: 50% 50%; }
+        @keyframes wave-move { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        .glass-body { fill: rgba(255, 255, 255, 0.1); backdrop-filter: blur(2px); }
+        .glass-stroke { fill: none; stroke: rgba(255, 255, 255, 0.6); stroke-width: 2; filter: drop-shadow(0 0 2px rgba(255,255,255,0.5)); }
         .highlight-large { fill: url(#shineGradient); opacity: 0.8; pointer-events: none; }
-        .highlight-small { fill: white; opacity: 0.9; filter: blur(1px); }
-
-        /* 底部文字 */
-        .loading-text {
-            margin-top: 30px;
-            font-size: 16px; font-weight: bold; letter-spacing: 1.5px;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            display: flex; align-items: center; gap: 8px;
-        }
+        .loading-text { margin-top: 30px; font-size: 16px; font-weight: bold; letter-spacing: 1.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; }
         .dots::after { content: ''; animation: dots-anim 1.5s infinite steps(4, end); }
-        @keyframes dots-anim {
-            0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; }
-        }
+        @keyframes dots-anim { 0%, 20% { content: ''; } 40% { content: '.'; } 60% { content: '..'; } 80%, 100% { content: '...'; } }
         #percentText { font-family: monospace; opacity: 0.8; font-size: 14px; }
-
     </style>
     <script>dayjs.locale('zh-cn');</script>
 </head>
 <body class="p-4 max-w-sm mx-auto">
 
-    <!-- 全屏加载层 (Splash Screen) -->
+    <!-- 全屏加载层 -->
     <div id="splashScreen">
         <div class="loader-container">
             <svg class="heart-svg" viewBox="0 0 100 90">
@@ -145,8 +101,11 @@
             </div>
             <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">老婆么么哒❤️</h1>
         </div>
-        <button onclick="openSettings()" class="bg-white p-2.5 rounded-full shadow-sm active:scale-95 transition">
-            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <!-- 更改为个人中心按钮 -->
+        <button onclick="openNavMenu()" class="bg-white p-2.5 rounded-full shadow-sm active:scale-95 transition text-blue-500">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+            </svg>
         </button>
     </div>
 
@@ -325,6 +284,7 @@
         </div>
     </div>
 
+    <!-- 录入弹窗 -->
     <div id="entryModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-end sm:items-center justify-center transition-opacity">
         <div class="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl animate-slide-up">
             <div class="flex justify-between items-center mb-6">
@@ -373,6 +333,7 @@
         </div>
     </div>
 
+    <!-- 历史记录弹窗 -->
     <div id="historyModal" class="fixed inset-0 bg-white z-50 hidden overflow-y-auto">
         <div class="p-4 max-w-sm mx-auto">
             <div class="flex justify-between items-center mb-6 mt-2">
@@ -383,6 +344,7 @@
         </div>
     </div>
 
+    <!-- 化验记录弹窗 -->
     <div id="labHistoryModal" class="fixed inset-0 bg-white z-50 hidden overflow-y-auto">
         <div class="p-4 max-w-sm mx-auto">
             <div class="flex justify-between items-center mb-6 mt-2">
@@ -397,6 +359,25 @@
         </div>
     </div>
 
+    <!-- 新增：导航菜单弹窗 -->
+    <div id="navModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-6">
+        <div class="bg-white w-full rounded-2xl p-6 shadow-2xl animate-slide-up">
+            <h2 class="text-lg font-bold mb-6 text-center text-gray-800">功能导航</h2>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <button onclick="location.href='cost.html'" class="flex flex-col items-center justify-center p-4 bg-orange-50 hover:bg-orange-100 rounded-xl border border-orange-100 transition">
+                    <div class="text-3xl mb-2">💰</div>
+                    <span class="text-sm font-bold text-orange-800">费用统计</span>
+                </button>
+                <button onclick="openSettingsFromNav()" class="flex flex-col items-center justify-center p-4 bg-gray-50 hover:bg-gray-100 rounded-xl border border-gray-100 transition">
+                    <div class="text-3xl mb-2">⚙️</div>
+                    <span class="text-sm font-bold text-gray-800">系统设置</span>
+                </button>
+            </div>
+            <button onclick="document.getElementById('navModal').classList.add('hidden')" class="w-full text-gray-400 text-sm py-3 font-bold">关闭</button>
+        </div>
+    </div>
+
+    <!-- 设置弹窗 -->
     <div id="settingsModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-6">
         <div class="bg-white w-full rounded-2xl p-6 shadow-2xl">
             <h2 class="text-lg font-bold mb-4">Github 连接</h2>
@@ -417,23 +398,16 @@
         let config = JSON.parse(localStorage.getItem(CACHE_KEY));
         let appData = { tixing: null, chiyao: [], tijian: [] };
 
-        // --- 核心：初始化逻辑 ---
         async function init() {
             startClock();
-            
-            // 1. 如果没有配置，直接移除加载屏并打开设置，不进行等待
             if (!config) { 
                 removeSplash();
                 openSettings(); 
                 return; 
             }
             
-            // 2. 启动液体填充动画（在后台运行）
-            startLiquidAnimation(3000); // 3秒填满
-
-            // 3. 并行执行：A. 最小等待时间 3秒  B. 加载数据
+            startLiquidAnimation(3000);
             const minWait = new Promise(resolve => setTimeout(resolve, 3000));
-            
             const loadData = (async () => {
                 try {
                     setGhStatus('loading');
@@ -446,31 +420,21 @@
                     setGhStatus('error');
                 }
             })();
-
-            // 4. 等待两者都完成
             await Promise.all([minWait, loadData]);
-
-            // 5. 渲染界面并移除加载屏
             renderUI();
             removeSplash();
         }
 
-        // --- 液体动画控制 ---
         function startLiquidAnimation(duration) {
             const waveContainer = document.getElementById('waveContainer');
             const percentText = document.getElementById('percentText');
-            // SVG Y轴坐标：90是空(底)，8是满(顶)
             const emptyY = 90, fullY = 8;
             let progress = 0;
             const interval = 20;
             const step = 100 / (duration / interval);
-
             const timer = setInterval(() => {
                 progress += step;
-                if (progress >= 100) {
-                    progress = 100;
-                    clearInterval(timer);
-                }
+                if (progress >= 100) { progress = 100; clearInterval(timer); }
                 if(percentText) percentText.innerText = Math.floor(progress) + "%";
                 if(waveContainer) {
                     const currentY = emptyY - ((emptyY - fullY) * (progress / 100));
@@ -479,17 +443,12 @@
             }, interval);
         }
 
-        // --- 移除加载屏 ---
         function removeSplash() {
             const splash = document.getElementById('splashScreen');
             if(splash) {
-                // 淡出并放大一点点，效果更现代
                 splash.style.transform = "scale(1.05)";
                 splash.style.opacity = '0';
-                setTimeout(() => { 
-                    splash.style.visibility = 'hidden'; 
-                    splash.style.display = 'none'; // 彻底移除布局占用
-                }, 600);
+                setTimeout(() => { splash.style.visibility = 'hidden'; splash.style.display = 'none'; }, 600);
             }
         }
 
@@ -545,7 +504,6 @@
                 if (type === 'pm') { log.taken_pm = true; log.time_pm = dayjs().format('HH:mm'); }
 
                 await saveFile('chiyao.json', appData.chiyao);
-                
                 renderUI(); setGhStatus('success');
             } catch (e) { showError(e.message); setGhStatus('error'); }
             setLoading(false);
@@ -574,7 +532,6 @@
         function renderUI() {
             const today = dayjs().format('YYYY-MM-DD');
             const log = appData.chiyao.find(l => l.date === today) || {};
-            
             const updateBtn = (type, taken, time) => {
                 const cap = type.charAt(0).toUpperCase() + type.slice(1);
                 const el = document.getElementById(`check${cap}`);
@@ -586,20 +543,16 @@
             const card = document.getElementById('medCard');
             if(log.taken_am && log.taken_pm) card.className = "card shadow-apple bg-gradient-to-br from-emerald-500 to-green-500 text-white relative overflow-hidden transition-all duration-500";
             else card.className = "card shadow-apple bg-gradient-to-br from-blue-500 to-indigo-600 text-white relative overflow-hidden transition-all duration-500";
-
             document.getElementById('waterCount').innerText = log.water_count || 0;
-            
             const calculatedStock = calculateStock();
             document.getElementById('stockCount').innerText = calculatedStock;
             document.getElementById('stockBar').style.width = `${Math.min(100, (calculatedStock / 120) * 100)}%`;
-            
             const daysLeft = Math.max(0, dayjs(appData.tixing.next_visit_date).diff(dayjs(), 'day'));
             document.getElementById('daysUntil').innerText = daysLeft;
             const maxRevisitDays = 30; 
             const revisitPercent = Math.min(100, (daysLeft / maxRevisitDays) * 100);
             document.getElementById('daysBar').style.width = `${revisitPercent}%`;
             document.getElementById('visitDate').innerText = dayjs(appData.tixing.next_visit_date).format('YYYY-MM-DD');
-
             renderWeekHistory();
             renderCharts();
         }
@@ -621,60 +574,44 @@
             const data = [...appData.tijian]
                 .filter(d => dayjs(d.date).isAfter(oneYearAgo))
                 .sort((a,b)=>dayjs(a.date).diff(dayjs(b.date)));
-            
             const labels = data.map(d=>dayjs(d.date).format('MM/DD'));
-
             const bcrData = data.map(d => {
                 let val = parseFloat(d.bcr_abl);
                 if(isNaN(val)) return null;
                 return val <= 0 ? 0.0001 : val; 
             });
-
             const commonOpts = { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} };
-
             if(window.myBcrChart) window.myBcrChart.destroy();
             window.myBcrChart = new Chart(document.getElementById('chartBcr').getContext('2d'), {
                 type: 'line',
-                data: { labels, datasets: [{ 
-                    label: 'BCR-ABL', data: bcrData, 
-                    borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', 
-                    fill:true, tension:0.3, spanGaps: true 
-                }] },
+                data: { labels, datasets: [{ label: 'BCR-ABL', data: bcrData, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill:true, tension:0.3, spanGaps: true }] },
                 options: { ...commonOpts, scales:{ y:{type:'logarithmic', grid:{borderDash:[4,4]}}, x:{grid:{display:false}} } }
             });
-
             const safetyZonesPlugin = {
                 id: 'safetyZones',
                 beforeDraw: (chart) => {
                     const { ctx, chartArea: { left, top, right, bottom, width, height }, scales: { y, y1 } } = chart;
-                    
                     if(y) {
                         const yTop = y.getPixelForValue(9.5); 
                         const yBottom = y.getPixelForValue(3.5);
                         if (yBottom > top && yTop < bottom) {
-                            ctx.save();
-                            ctx.fillStyle = 'rgba(16, 185, 129, 0.1)'; 
-                            const rectTop = Math.max(top, yTop);
-                            const rectBottom = Math.min(bottom, yBottom);
+                            ctx.save(); ctx.fillStyle = 'rgba(16, 185, 129, 0.1)'; 
+                            const rectTop = Math.max(top, yTop); const rectBottom = Math.min(bottom, yBottom);
                             if(rectBottom > rectTop) ctx.fillRect(left, rectTop, width, rectBottom - rectTop);
                             ctx.restore();
                         }
                     }
                     if(y1) {
-                        const y1Top = y1.getPixelForValue(350);
-                        const y1Bottom = y1.getPixelForValue(125);
+                        const y1Top = y1.getPixelForValue(350); const y1Bottom = y1.getPixelForValue(125);
                         if (y1Bottom > top && y1Top < bottom) {
-                            ctx.save();
-                            ctx.fillStyle = 'rgba(245, 158, 11, 0.1)'; 
-                            const rectTop = Math.max(top, y1Top);
-                            const rectBottom = Math.min(bottom, y1Bottom);
+                            ctx.save(); ctx.fillStyle = 'rgba(245, 158, 11, 0.1)'; 
+                            const rectTop = Math.max(top, y1Top); const rectBottom = Math.min(bottom, y1Bottom);
                             if(rectBottom > rectTop) ctx.fillRect(left, rectTop, width, rectBottom - rectTop);
                             ctx.restore();
                         }
                     }
                 }
             };
-
             if(window.myBloodChart) window.myBloodChart.destroy();
             window.myBloodChart = new Chart(document.getElementById('chartBlood').getContext('2d'), {
                 type: 'line',
@@ -683,21 +620,7 @@
                     { label: 'PLT', data: data.map(d=>d.plt), borderColor: '#f59e0b', backgroundColor: '#f59e0b', tension:0.3, yAxisID:'y1', spanGaps: true }
                 ]},
                 plugins: [safetyZonesPlugin], 
-                options: { 
-                    ...commonOpts,
-                    interaction:{mode:'index', intersect:false},
-                    scales:{ 
-                        y:{
-                            position:'left', grid:{borderDash:[4,4]},
-                            ticks: { color: '#10b981' }, border: { color: '#10b981', display: true }
-                        }, 
-                        y1:{
-                            position:'right', grid:{display:false},
-                            ticks: { color: '#f59e0b' }, border: { color: '#f59e0b', display: true }
-                        }, 
-                        x:{grid:{display:false}} 
-                    }
-                }
+                options: { ...commonOpts, interaction:{mode:'index', intersect:false}, scales:{ y:{position:'left', grid:{borderDash:[4,4]}, ticks: { color: '#10b981' }, border: { color: '#10b981', display: true }}, y1:{position:'right', grid:{display:false}, ticks: { color: '#f59e0b' }, border: { color: '#f59e0b', display: true }}, x:{grid:{display:false}} } }
             });
         }
 
@@ -720,23 +643,12 @@
             const header = document.getElementById('labHistoryHeader');
             list.innerHTML = '';
             const data = [...appData.tijian].sort((a,b)=>dayjs(b.date).diff(dayjs(a.date)));
-
             if (type === 'bcr') {
-                title.innerText = "融合基因历史 (BCR-ABL)";
-                header.innerText = "结果 (%)";
-                data.forEach(d => {
-                    if (d.bcr_abl !== null && d.bcr_abl !== undefined) {
-                        list.innerHTML += `<div class="flex justify-between items-center p-3 bg-blue-50/50 rounded-xl border border-blue-100 mb-2"><span class="font-bold text-gray-700">${d.date}</span><span class="font-mono font-bold text-blue-600 text-lg">${d.bcr_abl}%</span></div>`;
-                    }
-                });
+                title.innerText = "融合基因历史 (BCR-ABL)"; header.innerText = "结果 (%)";
+                data.forEach(d => { if (d.bcr_abl !== null && d.bcr_abl !== undefined) list.innerHTML += `<div class="flex justify-between items-center p-3 bg-blue-50/50 rounded-xl border border-blue-100 mb-2"><span class="font-bold text-gray-700">${d.date}</span><span class="font-mono font-bold text-blue-600 text-lg">${d.bcr_abl}%</span></div>`; });
             } else {
-                title.innerText = "血常规历史";
-                header.innerText = "WBC / PLT";
-                data.forEach(d => {
-                    if (d.wbc || d.plt) {
-                        list.innerHTML += `<div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2"><span class="font-bold text-gray-700">${d.date}</span><div class="flex gap-3"><span class="text-emerald-600 font-bold">W: ${d.wbc||'-'}</span><span class="text-amber-500 font-bold">P: ${d.plt||'-'}</span></div></div>`;
-                    }
-                });
+                title.innerText = "血常规历史"; header.innerText = "WBC / PLT";
+                data.forEach(d => { if (d.wbc || d.plt) list.innerHTML += `<div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2"><span class="font-bold text-gray-700">${d.date}</span><div class="flex gap-3"><span class="text-emerald-600 font-bold">W: ${d.wbc||'-'}</span><span class="text-amber-500 font-bold">P: ${d.plt||'-'}</span></div></div>`; });
             }
             document.getElementById('labHistoryModal').classList.remove('hidden');
         }
@@ -772,7 +684,11 @@
             } catch(e) { console.error(e); location.reload(); }
         }
 
+        /* --- 新增导航逻辑 --- */
+        function openNavMenu() { document.getElementById('navModal').classList.remove('hidden'); }
+        function openSettingsFromNav() { document.getElementById('navModal').classList.add('hidden'); openSettings(); }
         function openSettings() { document.getElementById('settingsModal').classList.remove('hidden'); }
+
         function saveSettings() {
             const u=document.getElementById('cfgUser').value, r=document.getElementById('cfgRepo').value, t=document.getElementById('cfgToken').value;
             if(u&&r&&t) { localStorage.setItem(CACHE_KEY, JSON.stringify({user:u, repo:r, token:t})); location.reload(); }
