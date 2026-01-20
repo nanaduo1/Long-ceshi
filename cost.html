@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <title>费用统计</title>
-    <meta name="theme-color" content="#f59e0b">
+    <meta name="theme-color" content="#f97316">
     <link rel="apple-touch-icon" href="/images/icon.png">
     <link rel="shortcut icon" href="/images/icon.png">
     
@@ -57,18 +57,31 @@
     <div class="shadow-apple rounded-2xl overflow-hidden mb-5">
         <div id="loadingOverlay" class="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-20 hidden"><div class="spinner"></div></div>
         
-        <!-- 上半部分：金色渐变 -->
-        <div class="bg-gradient-to-r from-amber-300 to-yellow-500 p-6 pb-8 text-amber-900 relative">
-            <p class="text-xs font-bold opacity-70 uppercase tracking-wide">累计总费用</p>
-            <h2 class="text-4xl font-extrabold mt-1 tracking-tight">¥ <span id="totalCost">0.00</span></h2>
+        <!-- 上半部分：橙色渐变 + 金币底纹 -->
+        <div class="bg-gradient-to-br from-orange-400 to-red-500 p-6 pb-10 text-white relative overflow-hidden">
+            <!-- 金币底纹装饰 -->
+            <div class="absolute -right-4 -bottom-8 opacity-20 pointer-events-none transform rotate-12">
+                <svg class="w-32 h-32 text-yellow-300" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/>
+                </svg>
+            </div>
+            <!-- 小金币装饰 -->
+            <div class="absolute right-20 top-4 opacity-10 pointer-events-none transform -rotate-12">
+                <svg class="w-12 h-12 text-yellow-100" fill="currentColor" viewBox="0 0 24 24">
+                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                </svg>
+            </div>
+
+            <p class="text-xs font-bold opacity-80 uppercase tracking-wide relative z-10">累计总费用</p>
+            <h2 class="text-4xl font-extrabold mt-2 tracking-tight relative z-10">¥ <span id="totalCost">0.00</span></h2>
             
             <!-- 装饰性圆点，模拟票据打孔 -->
-            <div class="absolute -bottom-3 -left-3 w-6 h-6 bg-[#F2F2F7] rounded-full"></div>
-            <div class="absolute -bottom-3 -right-3 w-6 h-6 bg-[#F2F2F7] rounded-full"></div>
+            <div class="absolute -bottom-3 -left-3 w-6 h-6 bg-[#F2F2F7] rounded-full z-10"></div>
+            <div class="absolute -bottom-3 -right-3 w-6 h-6 bg-[#F2F2F7] rounded-full z-10"></div>
         </div>
 
         <!-- 虚线分割 -->
-        <div class="h-0 border-t-2 border-dashed border-gray-300 bg-white mx-4"></div>
+        <div class="h-0 border-t-2 border-dashed border-gray-300 bg-white mx-4 relative z-10"></div>
 
         <!-- 下半部分：灰白渐变 -->
         <div class="bg-gradient-to-b from-gray-50 to-white p-6 pt-6">
@@ -126,7 +139,7 @@
     <!-- 查看更多按钮 (默认隐藏) -->
     <div id="showMoreContainer" class="text-center mb-8 hidden">
         <button onclick="openAllHistory()" class="text-xs text-gray-400 font-bold hover:text-blue-500 transition py-2 px-4 rounded-full active:bg-gray-100">
-            点击查看更多
+            点击查看更多↓
         </button>
     </div>
 
@@ -153,12 +166,19 @@
         </div>
     </div>
 
-    <!-- 详情弹窗 (只读) -->
+    <!-- 详情弹窗 (只读 + 修改) -->
     <div id="detailModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4 transition-opacity">
         <div class="bg-white w-full rounded-2xl p-6 shadow-2xl animate-slide-up">
             <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
                 <h3 class="text-lg font-bold text-gray-800" id="detailDate">--</h3>
-                <button onclick="document.getElementById('detailModal').classList.add('hidden')" class="bg-gray-100 rounded-full p-1 w-8 h-8 text-gray-500 font-bold">✕</button>
+                <div class="flex gap-2">
+                    <!-- 修改按钮 -->
+                    <button onclick="editFromDetail()" class="bg-blue-50 text-blue-600 rounded-full p-1.5 w-8 h-8 font-bold flex items-center justify-center hover:bg-blue-100 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    </button>
+                    <!-- 关闭按钮 -->
+                    <button onclick="document.getElementById('detailModal').classList.add('hidden')" class="bg-gray-100 rounded-full p-1 w-8 h-8 text-gray-500 font-bold hover:bg-gray-200 transition">✕</button>
+                </div>
             </div>
             
             <div class="space-y-6">
@@ -190,11 +210,11 @@
         </div>
     </div>
 
-    <!-- 录入弹窗 (输入) -->
+    <!-- 录入/修改弹窗 -->
     <div id="entryModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-end sm:items-center justify-center transition-opacity">
         <div class="bg-white w-full sm:max-w-sm rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl animate-slide-up h-[85vh] sm:h-auto overflow-y-auto">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-lg font-bold">记一笔</h2>
+                <h2 class="text-lg font-bold" id="entryTitle">记一笔</h2>
                 <button onclick="document.getElementById('entryModal').classList.add('hidden')" class="bg-gray-100 rounded-full p-1 w-8 h-8 text-gray-500 font-bold">✕</button>
             </div>
 
@@ -253,6 +273,8 @@
         const CACHE_KEY = 'cml_config_v10';
         let config = JSON.parse(localStorage.getItem(CACHE_KEY));
         let costData = [];
+        let currentDetailItem = null; // 当前正在查看详情的项
+        let editingId = null; // 当前正在编辑的项ID（为null表示新增）
 
         async function init() {
             startClock();
@@ -291,8 +313,9 @@
 
             const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
             
+            // 构建新的数据对象
             const newItem = {
-                id: Date.now().toString(),
+                id: editingId || Date.now().toString(), // 如果是编辑，保持原ID；如果是新增，生成新ID
                 date: document.getElementById('inDate').value,
                 total: 0,
                 items: {
@@ -309,7 +332,19 @@
             
             newItem.total = newItem.items.jiancha + newItem.items.yaowu + newItem.items.jiaotong;
 
-            costData.push(newItem);
+            // 更新本地数据
+            if (editingId) {
+                // 编辑模式：找到原记录并替换
+                const idx = costData.findIndex(i => i.id === editingId);
+                if (idx !== -1) {
+                    costData[idx] = newItem;
+                } else {
+                    costData.push(newItem); // 防御性：如果找不到ID，退化为新增
+                }
+            } else {
+                // 新增模式
+                costData.push(newItem);
+            }
             
             try {
                 const url = `https://api.github.com/repos/${config.user}/${config.repo}/contents/feiyong.json`;
@@ -323,7 +358,7 @@
                 const res = await fetch(url, {
                     method: 'PUT',
                     headers: { 'Authorization': `token ${config.token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: `Add cost record`, content: contentBase64, sha: sha })
+                    body: JSON.stringify({ message: editingId ? `Update cost record` : `Add cost record`, content: contentBase64, sha: sha })
                 });
 
                 if(!res.ok) throw new Error("Save failed");
@@ -333,9 +368,13 @@
                 setGhStatus('success');
             } catch (e) {
                 showError("保存失败: " + e.message);
-                costData.pop(); 
+                if (!editingId) costData.pop(); // 新增失败回滚
+                // 编辑失败不需要回滚costData，因为还没刷新页面，但这里简化处理直接重载或保持
             }
-            btn.innerText = "保存记录"; btn.disabled = false;
+            
+            // 恢复按钮状态
+            btn.innerText = editingId ? "保存修改" : "保存记录"; 
+            btn.disabled = false;
         }
 
         function renderUI() {
@@ -380,6 +419,9 @@
             
             displayData.forEach(item => {
                 const dateStr = dayjs(item.date).format('MM月DD日');
+                // 使用 JSON.stringify 并转义引号，确保 HTML 属性安全
+                const itemStr = JSON.stringify(item).replace(/"/g, '&quot;');
+                
                 container.innerHTML += `
                 <div class="card shadow-apple p-4 mb-3 flex items-center justify-between">
                     <div class="flex items-center gap-4">
@@ -391,7 +433,7 @@
                             <p class="text-xs text-gray-400">个人支付: ¥${fmt(item.payment?.geren || 0)}</p>
                         </div>
                     </div>
-                    <button onclick='openDetail(${JSON.stringify(item)})' class="bg-gray-50 text-gray-400 p-2 rounded-full hover:bg-gray-100 active:scale-95 transition">
+                    <button onclick='openDetail(${itemStr})' class="bg-gray-50 text-gray-400 p-2 rounded-full hover:bg-gray-100 active:scale-95 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                     </button>
                 </div>`;
@@ -433,6 +475,7 @@
         }
 
         function openDetail(item) {
+            currentDetailItem = item; // 保存当前查看的项，供编辑使用
             const fmt = (n) => n.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('detailDate').innerText = item.date;
             
@@ -449,10 +492,43 @@
             document.getElementById('detailModal').classList.remove('hidden');
         }
 
-        function openEntryModal() {
-            document.getElementById('entryModal').classList.remove('hidden');
-            document.getElementById('inDate').value = dayjs().format('YYYY-MM-DD');
-            ['inJiancha','inYaowu','inJiaotong','inYibao','inShangbao','inGeren'].forEach(id => document.getElementById(id).value = '');
+        // 从详情页直接点击编辑
+        function editFromDetail() {
+            if (!currentDetailItem) return;
+            document.getElementById('detailModal').classList.add('hidden'); // 关闭详情
+            openEntryModal(currentDetailItem); // 打开编辑，并传入当前项
+        }
+
+        // 打开录入/编辑弹窗
+        // 如果传入 item，则是编辑模式；否则是新增模式
+        function openEntryModal(item = null) {
+            const modal = document.getElementById('entryModal');
+            modal.classList.remove('hidden');
+            
+            if (item) {
+                // 编辑模式
+                editingId = item.id;
+                document.getElementById('entryTitle').innerText = "修改记录";
+                document.getElementById('btnSave').innerText = "保存修改";
+                
+                // 回填数据
+                document.getElementById('inDate').value = item.date;
+                document.getElementById('inJiancha').value = item.items.jiancha || '';
+                document.getElementById('inYaowu').value = item.items.yaowu || '';
+                document.getElementById('inJiaotong').value = item.items.jiaotong || '';
+                document.getElementById('inYibao').value = item.payment.yibao || '';
+                document.getElementById('inShangbao').value = item.payment.shangbao || '';
+                document.getElementById('inGeren').value = item.payment.geren || '';
+            } else {
+                // 新增模式
+                editingId = null;
+                document.getElementById('entryTitle').innerText = "记一笔";
+                document.getElementById('btnSave').innerText = "保存记录";
+                
+                // 清空数据
+                document.getElementById('inDate').value = dayjs().format('YYYY-MM-DD');
+                ['inJiancha','inYaowu','inJiaotong','inYibao','inShangbao','inGeren'].forEach(id => document.getElementById(id).value = '');
+            }
         }
 
         function startClock() {
@@ -476,5 +552,3 @@
     </script>
 </body>
 </html>
-
-
