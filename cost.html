@@ -2,7 +2,6 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 修改：添加 maximum-scale=1, user-scalable=no 以防止输入时页面自动放大 -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>费用统计</title>
     <meta name="theme-color" content="#f97316">
@@ -18,6 +17,7 @@
             background-color: #F2F2F7; color: #1c1c1e; padding-bottom: 40px;
             -webkit-tap-highlight-color: transparent;
             overscroll-behavior-y: none;
+            user-select: none;
         }
         .shadow-apple { box-shadow: 0 4px 20px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.03); }
         .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; }
@@ -27,13 +27,23 @@
         .spinner { border: 2px solid rgba(255,255,255,0.3); border-top: 2px solid white; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.8s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 票据锯齿效果 (可选，简单实现) */
-        .ticket-sep {
-            position: relative;
-            height: 20px;
-            background: radial-gradient(circle, transparent 8px, #ffffff 8px) left bottom / 20px 20px repeat-x;
-            transform: rotate(180deg);
-            margin-top: -10px;
+        /* 滑动删除相关的样式 */
+        .swipe-wrapper { position: relative; overflow: hidden; border-radius: 0.75rem; margin-bottom: 0.5rem; }
+        .swipe-content { 
+            position: relative; 
+            z-index: 10; 
+            background-color: #f9fafb; /* bg-gray-50 */
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+            will-change: transform;
+        }
+        .swipe-action {
+            position: absolute;
+            top: 0; bottom: 0; right: 0;
+            width: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
         }
     </style>
     <script>dayjs.locale('zh-cn');</script>
@@ -54,37 +64,27 @@
         </a>
     </div>
 
-    <!-- 总览卡片 (票据风格) -->
+    <!-- 总览卡片 -->
     <div class="shadow-apple rounded-2xl overflow-hidden mb-5">
         <div id="loadingOverlay" class="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-20 hidden"><div class="spinner"></div></div>
         
-        <!-- 上半部分：橙色渐变 + 金币底纹 -->
+        <!-- 上半部分 -->
         <div class="bg-gradient-to-br from-orange-400 to-red-500 p-6 pb-10 text-white relative overflow-hidden">
-            <!-- 金币底纹装饰 -->
             <div class="absolute -right-4 -bottom-8 opacity-20 pointer-events-none transform rotate-12">
                 <svg class="w-32 h-32 text-yellow-300" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.42z"/>
                 </svg>
             </div>
-            <!-- 小金币装饰 -->
-            <div class="absolute right-20 top-4 opacity-10 pointer-events-none transform -rotate-12">
-                <svg class="w-12 h-12 text-yellow-100" fill="currentColor" viewBox="0 0 24 24">
-                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
-                </svg>
-            </div>
-
             <p class="text-xs font-bold opacity-80 uppercase tracking-wide relative z-10">累计总费用</p>
             <h2 class="text-4xl font-extrabold mt-2 tracking-tight relative z-10">¥ <span id="totalCost">0.00</span></h2>
-            
-            <!-- 装饰性圆点，模拟票据打孔 -->
             <div class="absolute -bottom-3 -left-3 w-6 h-6 bg-[#F2F2F7] rounded-full z-10"></div>
             <div class="absolute -bottom-3 -right-3 w-6 h-6 bg-[#F2F2F7] rounded-full z-10"></div>
         </div>
 
-        <!-- 虚线分割 -->
+        <!-- 分割线 -->
         <div class="h-0 border-t-2 border-dashed border-gray-300 bg-white mx-4 relative z-10"></div>
 
-        <!-- 下半部分：灰白渐变 -->
+        <!-- 下半部分 -->
         <div class="bg-gradient-to-b from-gray-50 to-white p-6 pt-6">
             <div class="space-y-5">
                 <!-- 医保 -->
@@ -100,7 +100,6 @@
                         <div id="barYibao" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
                 </div>
-                
                 <!-- 商保 -->
                 <div>
                     <div class="flex justify-between items-end mb-1.5">
@@ -114,7 +113,6 @@
                         <div id="barShangbao" class="bg-orange-400 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
                     </div>
                 </div>
-
                 <!-- 个人 -->
                 <div>
                     <div class="flex justify-between items-end mb-1.5">
@@ -132,12 +130,10 @@
         </div>
     </div>
 
-    <!-- 列表区域 (只显示前5条) -->
-    <div id="costListContainer" class="space-y-3 mb-6">
-        <!-- 动态生成列表项 -->
-    </div>
+    <!-- 列表区域 (前5条) -->
+    <div id="costListContainer" class="space-y-3 mb-6"></div>
 
-    <!-- 查看更多按钮 (默认隐藏) -->
+    <!-- 查看更多按钮 -->
     <div id="showMoreContainer" class="text-center mb-8 hidden">
         <button onclick="openAllHistory()" class="text-xs text-gray-400 font-bold hover:text-blue-500 transition py-2 px-4 rounded-full active:bg-gray-100">
             点击查看更多
@@ -150,40 +146,43 @@
         <span>记录新费用</span>
     </button>
 
-    <!-- 全部历史弹窗 -->
+    <!-- 全部历史弹窗 (带左滑删除) -->
     <div id="allHistoryModal" class="fixed inset-0 bg-white z-50 hidden overflow-y-auto">
-        <div class="p-4 max-w-sm mx-auto">
-            <div class="flex justify-between items-center mb-6 mt-2">
-                <h2 class="text-xl font-bold">所有费用记录</h2>
-                <button onclick="document.getElementById('allHistoryModal').classList.add('hidden')" class="bg-gray-100 p-2 rounded-full text-sm font-bold text-gray-600">关闭</button>
+        <div class="p-4 max-w-sm mx-auto min-h-screen relative">
+            <div class="sticky top-0 bg-white z-20 pb-2 pt-2">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">所有记录</h2>
+                    <button onclick="closeAllHistory()" class="bg-gray-100 p-2 rounded-full text-sm font-bold text-gray-600">关闭</button>
+                </div>
+                <div class="flex items-center gap-2 bg-yellow-50 p-2 rounded-lg text-xs text-yellow-700 font-bold mb-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11"/></svg>
+                    <span>提示：向左滑动列表项可删除记录</span>
+                </div>
+                <div class="border-b border-gray-100 pb-2 flex justify-between text-xs font-bold text-gray-400 px-2">
+                    <span>日期</span>
+                    <span class="pr-8">总额 / 自费</span>
+                </div>
             </div>
-            <div class="border-b border-gray-100 pb-2 mb-2 flex justify-between text-xs font-bold text-gray-400 px-2">
-                <span>日期</span>
-                <span class="pr-8">总金额 / 个人支付</span>
-            </div>
-            <div id="allHistoryList" class="space-y-2 pb-20">
+            
+            <div id="allHistoryList" class="pb-20 pt-2">
                 <!-- 动态列表 -->
             </div>
         </div>
     </div>
 
-    <!-- 详情弹窗 (只读 + 修改) -->
+    <!-- 详情弹窗 -->
     <div id="detailModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-[60] flex items-center justify-center p-4 transition-opacity">
         <div class="bg-white w-full rounded-2xl p-6 shadow-2xl animate-slide-up">
             <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
                 <h3 class="text-lg font-bold text-gray-800" id="detailDate">--</h3>
                 <div class="flex gap-2">
-                    <!-- 修改按钮 -->
                     <button onclick="editFromDetail()" class="bg-blue-50 text-blue-600 rounded-full p-1.5 w-8 h-8 font-bold flex items-center justify-center hover:bg-blue-100 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
                     </button>
-                    <!-- 关闭按钮 -->
                     <button onclick="document.getElementById('detailModal').classList.add('hidden')" class="bg-gray-100 rounded-full p-1 w-8 h-8 text-gray-500 font-bold hover:bg-gray-200 transition">✕</button>
                 </div>
             </div>
-            
             <div class="space-y-6">
-                <!-- 费用构成 -->
                 <div>
                     <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">① 费用构成</h4>
                     <div class="space-y-2">
@@ -192,8 +191,6 @@
                         <div class="flex justify-between text-sm"><span class="text-gray-600">交通费用</span><span class="font-bold font-mono" id="dJiaotong">0.00</span></div>
                     </div>
                 </div>
-
-                <!-- 支付构成 -->
                 <div>
                     <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">② 支付情况</h4>
                     <div class="space-y-2">
@@ -202,7 +199,6 @@
                         <div class="flex justify-between text-sm p-2 bg-gray-50 rounded-lg"><span class="text-gray-800 font-bold">个人自费</span><span class="font-bold font-mono text-gray-900" id="dGeren">0.00</span></div>
                     </div>
                 </div>
-                
                 <div class="border-t border-gray-100 pt-3 flex justify-between items-center">
                     <span class="text-sm font-bold text-gray-400">总计</span>
                     <span class="text-xl font-extrabold text-gray-900 font-mono">¥ <span id="dTotal">0.00</span></span>
@@ -218,64 +214,47 @@
                 <h2 class="text-lg font-bold" id="entryTitle">记一笔</h2>
                 <button onclick="document.getElementById('entryModal').classList.add('hidden')" class="bg-gray-100 rounded-full p-1 w-8 h-8 text-gray-500 font-bold">✕</button>
             </div>
-
             <div class="space-y-5">
                 <div>
                     <label class="block text-xs font-bold text-gray-500 mb-1">日期</label>
                     <input type="date" id="inDate" class="w-full bg-gray-100 rounded-xl p-3 text-sm font-bold outline-none">
                 </div>
-
-                <!-- 费用明细输入 -->
                 <div class="bg-orange-50/50 p-3 rounded-xl border border-orange-100">
                     <h4 class="text-xs font-bold text-orange-600 mb-3 uppercase">① 费用明细</h4>
                     <div class="grid grid-cols-2 gap-3">
-                        <div>
-                            <label class="text-[10px] text-gray-500 block mb-1">检查费</label>
-                            <input type="number" id="inJiancha" placeholder="0" class="w-full bg-white rounded-lg p-2 text-sm font-bold outline-none border border-orange-200 focus:border-orange-400">
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-gray-500 block mb-1">药费</label>
-                            <input type="number" id="inYaowu" placeholder="0" class="w-full bg-white rounded-lg p-2 text-sm font-bold outline-none border border-orange-200 focus:border-orange-400">
-                        </div>
-                        <div class="col-span-2">
-                            <label class="text-[10px] text-gray-500 block mb-1">交通/其他</label>
-                            <input type="number" id="inJiaotong" placeholder="0" class="w-full bg-white rounded-lg p-2 text-sm font-bold outline-none border border-orange-200 focus:border-orange-400">
-                        </div>
+                        <div><label class="text-[10px] text-gray-500 block mb-1">检查费</label><input type="number" id="inJiancha" placeholder="0" class="w-full bg-white rounded-lg p-2 text-sm font-bold outline-none border border-orange-200 focus:border-orange-400"></div>
+                        <div><label class="text-[10px] text-gray-500 block mb-1">药费</label><input type="number" id="inYaowu" placeholder="0" class="w-full bg-white rounded-lg p-2 text-sm font-bold outline-none border border-orange-200 focus:border-orange-400"></div>
+                        <div class="col-span-2"><label class="text-[10px] text-gray-500 block mb-1">交通/其他</label><input type="number" id="inJiaotong" placeholder="0" class="w-full bg-white rounded-lg p-2 text-sm font-bold outline-none border border-orange-200 focus:border-orange-400"></div>
                     </div>
                 </div>
-
-                <!-- 支付明细输入 -->
                 <div class="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
                     <h4 class="text-xs font-bold text-blue-600 mb-3 uppercase">② 报销与自费</h4>
                     <div class="space-y-3">
-                        <div class="flex items-center gap-2">
-                            <label class="text-xs font-bold w-16">医保</label>
-                            <input type="number" id="inYibao" placeholder="0" class="flex-1 bg-white rounded-lg p-2 text-sm font-bold outline-none border border-blue-200 focus:border-blue-400">
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <label class="text-xs font-bold w-16">商保</label>
-                            <input type="number" id="inShangbao" placeholder="0" class="flex-1 bg-white rounded-lg p-2 text-sm font-bold outline-none border border-blue-200 focus:border-blue-400">
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <label class="text-xs font-bold w-16 text-gray-800">个人</label>
-                            <input type="number" id="inGeren" placeholder="0" class="flex-1 bg-gray-100 rounded-lg p-2 text-sm font-bold outline-none border border-gray-300 focus:border-gray-500">
-                        </div>
+                        <div class="flex items-center gap-2"><label class="text-xs font-bold w-16">医保</label><input type="number" id="inYibao" placeholder="0" class="flex-1 bg-white rounded-lg p-2 text-sm font-bold outline-none border border-blue-200 focus:border-blue-400"></div>
+                        <div class="flex items-center gap-2"><label class="text-xs font-bold w-16">商保</label><input type="number" id="inShangbao" placeholder="0" class="flex-1 bg-white rounded-lg p-2 text-sm font-bold outline-none border border-blue-200 focus:border-blue-400"></div>
+                        <div class="flex items-center gap-2"><label class="text-xs font-bold w-16 text-gray-800">个人</label><input type="number" id="inGeren" placeholder="0" class="flex-1 bg-gray-100 rounded-lg p-2 text-sm font-bold outline-none border border-gray-300 focus:border-gray-500"></div>
                     </div>
                 </div>
             </div>
-
             <button onclick="saveCost()" id="btnSave" class="w-full mt-6 bg-blue-600 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-blue-500/30">保存记录</button>
         </div>
     </div>
 
-    <div id="errorBox" class="hidden fixed top-20 left-4 right-4 bg-red-500 text-white p-3 rounded-xl shadow-xl z-[60] text-sm font-bold text-center transition-all"></div>
+    <!-- 全局提示框 -->
+    <div id="errorBox" class="hidden fixed top-20 left-4 right-4 bg-red-500 text-white p-3 rounded-xl shadow-xl z-[70] text-sm font-bold text-center transition-all"></div>
+    <div id="successBox" class="hidden fixed top-20 left-4 right-4 bg-green-500 text-white p-3 rounded-xl shadow-xl z-[70] text-sm font-bold text-center transition-all"></div>
 
     <script>
         const CACHE_KEY = 'cml_config_v10';
         let config = JSON.parse(localStorage.getItem(CACHE_KEY));
         let costData = [];
-        let currentDetailItem = null; // 当前正在查看详情的项
-        let editingId = null; // 当前正在编辑的项ID（为null表示新增）
+        let currentDetailItem = null;
+        let editingId = null;
+        
+        // 滑动相关变量
+        let startX = 0;
+        let startY = 0;
+        let currentSwipeElem = null;
 
         async function init() {
             startClock();
@@ -284,7 +263,6 @@
                 setTimeout(() => location.href = 'index.html', 2000);
                 return;
             }
-            
             setLoading(true);
             try {
                 setGhStatus('loading');
@@ -308,121 +286,114 @@
             costData = JSON.parse(decodeURIComponent(escape(window.atob(json.content))));
         }
 
+        // --- 核心功能：GitHub数据同步 (Save & Delete) ---
+
+        // 通用的 GitHub 推送函数
+        async function syncToGithub(newData, message) {
+            const url = `https://api.github.com/repos/${config.user}/${config.repo}/contents/feiyong.json`;
+            let sha = null;
+            try {
+                const getRes = await fetch(url, { headers: { 'Authorization': `token ${config.token}` }, cache: "no-store" });
+                if(getRes.ok) { const json = await getRes.json(); sha = json.sha; }
+            } catch(e) {}
+
+            const contentBase64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(newData, null, 2))));
+            const res = await fetch(url, {
+                method: 'PUT',
+                headers: { 'Authorization': `token ${config.token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message, content: contentBase64, sha: sha })
+            });
+
+            if(!res.ok) throw new Error("Sync failed");
+            return res;
+        }
+
         async function saveCost() {
             const btn = document.getElementById('btnSave');
             btn.innerText = "保存中..."; btn.disabled = true;
 
             const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
-            
-            // 构建新的数据对象
             const newItem = {
-                id: editingId || Date.now().toString(), // 如果是编辑，保持原ID；如果是新增，生成新ID
+                id: editingId || Date.now().toString(),
                 date: document.getElementById('inDate').value,
                 total: 0,
-                items: {
-                    jiancha: getVal('inJiancha'),
-                    yaowu: getVal('inYaowu'),
-                    jiaotong: getVal('inJiaotong')
-                },
-                payment: {
-                    yibao: getVal('inYibao'),
-                    shangbao: getVal('inShangbao'),
-                    geren: getVal('inGeren')
-                }
+                items: { jiancha: getVal('inJiancha'), yaowu: getVal('inYaowu'), jiaotong: getVal('inJiaotong') },
+                payment: { yibao: getVal('inYibao'), shangbao: getVal('inShangbao'), geren: getVal('inGeren') }
             };
-            
             newItem.total = newItem.items.jiancha + newItem.items.yaowu + newItem.items.jiaotong;
 
-            // 更新本地数据
+            // 深拷贝一份数据用于操作
+            let newCostData = [...costData];
             if (editingId) {
-                // 编辑模式：找到原记录并替换
-                const idx = costData.findIndex(i => i.id === editingId);
-                if (idx !== -1) {
-                    costData[idx] = newItem;
-                } else {
-                    costData.push(newItem); // 防御性：如果找不到ID，退化为新增
-                }
+                const idx = newCostData.findIndex(i => i.id === editingId);
+                if (idx !== -1) newCostData[idx] = newItem; else newCostData.push(newItem);
             } else {
-                // 新增模式
-                costData.push(newItem);
+                newCostData.push(newItem);
             }
             
             try {
-                const url = `https://api.github.com/repos/${config.user}/${config.repo}/contents/feiyong.json`;
-                let sha = null;
-                try {
-                    const getRes = await fetch(url, { headers: { 'Authorization': `token ${config.token}` }, cache: "no-store" });
-                    if(getRes.ok) { const json = await getRes.json(); sha = json.sha; }
-                } catch(e) {}
-
-                const contentBase64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(costData, null, 2))));
-                const res = await fetch(url, {
-                    method: 'PUT',
-                    headers: { 'Authorization': `token ${config.token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: editingId ? `Update cost record` : `Add cost record`, content: contentBase64, sha: sha })
-                });
-
-                if(!res.ok) throw new Error("Save failed");
-                
+                await syncToGithub(newCostData, editingId ? "Update record" : "Add record");
+                costData = newCostData; // 只有成功才更新内存中的数据
                 document.getElementById('entryModal').classList.add('hidden');
                 renderUI();
-                setGhStatus('success');
+                showSuccess("保存成功");
+                // 如果是在所有历史页面，也刷新一下
+                if(!document.getElementById('allHistoryModal').classList.contains('hidden')) {
+                    openAllHistory(); 
+                }
             } catch (e) {
                 showError("保存失败: " + e.message);
-                if (!editingId) costData.pop(); // 新增失败回滚
-                // 编辑失败不需要回滚costData，因为还没刷新页面，但这里简化处理直接重载或保持
             }
-            
-            // 恢复按钮状态
-            btn.innerText = editingId ? "保存修改" : "保存记录"; 
-            btn.disabled = false;
+            btn.innerText = editingId ? "保存修改" : "保存记录"; btn.disabled = false;
         }
 
+        async function deleteCost(id) {
+            if(!confirm("确定要删除这条记录吗？此操作不可恢复。")) return;
+            
+            setLoading(true);
+            try {
+                const newCostData = costData.filter(item => item.id !== String(id));
+                await syncToGithub(newCostData, "Delete cost record");
+                
+                costData = newCostData;
+                renderUI(); // 刷新主页
+                openAllHistory(); // 刷新列表页
+                showSuccess("删除成功");
+            } catch (e) {
+                showError("删除失败: " + e.message);
+            }
+            setLoading(false);
+        }
+
+        // --- 渲染逻辑 ---
+
         function renderUI() {
-            // 1. 计算总览
             let tTotal=0, tYibao=0, tShangbao=0, tGeren=0;
             costData.forEach(d => {
-                tTotal += (d.total || 0);
-                tYibao += (d.payment?.yibao || 0);
-                tShangbao += (d.payment?.shangbao || 0);
-                tGeren += (d.payment?.geren || 0);
+                tTotal += (d.total || 0); tYibao += (d.payment?.yibao || 0); tShangbao += (d.payment?.shangbao || 0); tGeren += (d.payment?.geren || 0);
             });
-            
             const fmt = (n) => n.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('totalCost').innerText = fmt(tTotal);
             document.getElementById('totalYibao').innerText = fmt(tYibao);
             document.getElementById('totalShangbao').innerText = fmt(tShangbao);
             document.getElementById('totalGeren').innerText = fmt(tGeren);
 
-            // 更新进度条和百分比
             if (tTotal > 0) {
-                const pYibao = (tYibao / tTotal) * 100;
-                const pShangbao = (tShangbao / tTotal) * 100;
-                const pGeren = (tGeren / tTotal) * 100;
-
-                document.getElementById('barYibao').style.width = `${pYibao}%`;
-                document.getElementById('pctYibao').innerText = `${pYibao.toFixed(1)}%`;
-
-                document.getElementById('barShangbao').style.width = `${pShangbao}%`;
-                document.getElementById('pctShangbao').innerText = `${pShangbao.toFixed(1)}%`;
-
-                document.getElementById('barGeren').style.width = `${pGeren}%`;
-                document.getElementById('pctGeren').innerText = `${pGeren.toFixed(1)}%`;
+                document.getElementById('barYibao').style.width = `${(tYibao/tTotal)*100}%`;
+                document.getElementById('pctYibao').innerText = `${((tYibao/tTotal)*100).toFixed(1)}%`;
+                document.getElementById('barShangbao').style.width = `${(tShangbao/tTotal)*100}%`;
+                document.getElementById('pctShangbao').innerText = `${((tShangbao/tTotal)*100).toFixed(1)}%`;
+                document.getElementById('barGeren').style.width = `${(tGeren/tTotal)*100}%`;
+                document.getElementById('pctGeren').innerText = `${((tGeren/tTotal)*100).toFixed(1)}%`;
             }
 
-            // 2. 渲染列表 (只显示前5条)
             const container = document.getElementById('costListContainer');
             container.innerHTML = '';
-            
-            // 按日期倒序
             const sortedData = [...costData].sort((a,b) => dayjs(b.date).diff(dayjs(a.date)));
-            const displayData = sortedData.slice(0, 5);
             
-            displayData.forEach(item => {
+            sortedData.slice(0, 5).forEach(item => {
                 const dateStr = dayjs(item.date).format('MM月DD日');
-                // 使用 JSON.stringify 并转义引号，确保 HTML 属性安全
                 const itemStr = JSON.stringify(item).replace(/"/g, '&quot;');
-                
                 container.innerHTML += `
                 <div class="card shadow-apple p-4 mb-3 flex items-center justify-between">
                     <div class="flex items-center gap-4">
@@ -439,14 +410,7 @@
                     </button>
                 </div>`;
             });
-
-            // 控制"查看更多"显示
-            const showMore = document.getElementById('showMoreContainer');
-            if (sortedData.length > 5) {
-                showMore.classList.remove('hidden');
-            } else {
-                showMore.classList.add('hidden');
-            }
+            document.getElementById('showMoreContainer').classList[sortedData.length > 5 ? 'remove' : 'add']('hidden');
         }
 
         function openAllHistory() {
@@ -456,63 +420,138 @@
             const fmt = (n) => n.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
             sortedData.forEach(item => {
-                // 转义JSON字符串以防止HTML注入
                 const itemStr = JSON.stringify(item).replace(/"/g, '&quot;');
+                // 构建滑动结构：底层红色按钮 + 上层白色内容
                 list.innerHTML += `
-                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100 mb-2">
-                    <span class="font-bold text-gray-700 w-24 text-sm">${dayjs(item.date).format('YYYY-MM-DD')}</span>
-                    <div class="flex items-center gap-3 flex-1 justify-end">
-                        <div class="flex flex-col items-end">
-                            <span class="font-bold text-gray-900 text-sm">¥ ${fmt(item.total)}</span>
-                            <span class="text-[10px] text-gray-400">自费: ¥${fmt(item.payment?.geren || 0)}</span>
+                <div class="swipe-wrapper">
+                    <!-- 底层删除按钮 -->
+                    <div class="swipe-action bg-red-500 text-white font-bold text-sm" onclick="deleteCost('${item.id}')">
+                        <div class="flex flex-col items-center">
+                            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            删除
                         </div>
-                        <button onclick='openDetail(${itemStr})' class="text-gray-400 hover:text-blue-600 transition p-1">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-                        </button>
+                    </div>
+                    
+                    <!-- 上层内容 (绑定触摸事件) -->
+                    <div class="swipe-content p-3 border border-gray-200 rounded-xl flex justify-between items-center"
+                         ontouchstart="handleTouchStart(event)" 
+                         ontouchmove="handleTouchMove(event)" 
+                         ontouchend="handleTouchEnd(event)">
+                         
+                        <div class="flex items-center gap-3 flex-1" onclick='openDetail(${itemStr})'>
+                            <span class="font-bold text-gray-700 w-24 text-sm">${dayjs(item.date).format('YYYY-MM-DD')}</span>
+                            <div class="flex flex-col items-end flex-1">
+                                <span class="font-bold text-gray-900 text-sm">¥ ${fmt(item.total)}</span>
+                                <span class="text-[10px] text-gray-400">自费: ¥${fmt(item.payment?.geren || 0)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="pl-3 text-gray-300">
+                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                        </div>
                     </div>
                 </div>`;
             });
             document.getElementById('allHistoryModal').classList.remove('hidden');
         }
 
+        function closeAllHistory() {
+            document.getElementById('allHistoryModal').classList.add('hidden');
+        }
+
+        // --- 触摸滑动逻辑 ---
+        
+        function handleTouchStart(e) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            const content = e.currentTarget;
+            
+            // 如果点击的不是当前已打开的项，先关闭所有已打开的
+            if (currentSwipeElem && currentSwipeElem !== content) {
+                currentSwipeElem.style.transform = 'translateX(0px)';
+                currentSwipeElem = null;
+            }
+            
+            // 移除过渡，让跟随手指更实时
+            content.style.transition = 'none';
+        }
+
+        function handleTouchMove(e) {
+            const currentX = e.touches[0].clientX;
+            const currentY = e.touches[0].clientY;
+            const diffX = currentX - startX;
+            const diffY = currentY - startY;
+
+            // 如果垂直滚动幅度大于水平，则认为是页面滚动，不触发侧滑
+            if (Math.abs(diffY) > Math.abs(diffX)) return;
+
+            // 阻止默认事件（防止页面横向滚动）
+            if (e.cancelable) e.preventDefault();
+
+            const content = e.currentTarget;
+            
+            // 只允许向左滑动 (diffX < 0)
+            if (diffX < 0) {
+                // 增加阻尼感，最大滑动 -80px
+                const move = Math.max(diffX, -80); 
+                content.style.transform = `translateX(${move}px)`;
+            } else if (diffX > 0 && currentSwipeElem === content) {
+                // 如果已经是打开状态，允许向右滑回去
+                const startPos = -70;
+                const move = Math.min(startPos + diffX, 0);
+                content.style.transform = `translateX(${move}px)`;
+            }
+        }
+
+        function handleTouchEnd(e) {
+            const content = e.currentTarget;
+            content.style.transition = 'transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)'; // 恢复过渡效果
+            
+            const currentX = e.changedTouches[0].clientX;
+            const diffX = currentX - startX;
+            
+            // 阈值判断：如果向左滑超过 35px，则吸附打开
+            if (diffX < -35) {
+                content.style.transform = 'translateX(-70px)'; // 露出70px宽度的删除按钮
+                currentSwipeElem = content;
+            } else {
+                content.style.transform = 'translateX(0px)';
+                if(currentSwipeElem === content) currentSwipeElem = null;
+            }
+        }
+
+        // --- 其他基础逻辑 ---
+
         function openDetail(item) {
-            currentDetailItem = item; // 保存当前查看的项，供编辑使用
+            // 如果正在左滑删除状态，点击内容不应该打开详情，而是应该关闭左滑
+            if(currentSwipeElem) {
+                currentSwipeElem.style.transform = 'translateX(0px)';
+                currentSwipeElem = null;
+                return;
+            }
+
+            currentDetailItem = item;
             const fmt = (n) => n.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('detailDate').innerText = item.date;
-            
-            document.getElementById('dJiancha').innerText = fmt(item.items.jiancha);
-            document.getElementById('dYaowu').innerText = fmt(item.items.yaowu);
-            document.getElementById('dJiaotong').innerText = fmt(item.items.jiaotong);
-            
-            document.getElementById('dYibao').innerText = fmt(item.payment.yibao);
-            document.getElementById('dShangbao').innerText = fmt(item.payment.shangbao);
-            document.getElementById('dGeren').innerText = fmt(item.payment.geren);
-            
+            ['Jiancha','Yaowu','Jiaotong'].forEach(k => document.getElementById(`d${k}`).innerText = fmt(item.items[k.toLowerCase()]));
+            ['Yibao','Shangbao','Geren'].forEach(k => document.getElementById(`d${k}`).innerText = fmt(item.payment[k.toLowerCase()]));
             document.getElementById('dTotal').innerText = fmt(item.total);
-            
             document.getElementById('detailModal').classList.remove('hidden');
         }
 
-        // 从详情页直接点击编辑
         function editFromDetail() {
             if (!currentDetailItem) return;
-            document.getElementById('detailModal').classList.add('hidden'); // 关闭详情
-            openEntryModal(currentDetailItem); // 打开编辑，并传入当前项
+            document.getElementById('detailModal').classList.add('hidden');
+            openEntryModal(currentDetailItem);
         }
 
-        // 打开录入/编辑弹窗
-        // 如果传入 item，则是编辑模式；否则是新增模式
         function openEntryModal(item = null) {
             const modal = document.getElementById('entryModal');
             modal.classList.remove('hidden');
-            
             if (item) {
-                // 编辑模式
                 editingId = item.id;
                 document.getElementById('entryTitle').innerText = "修改记录";
                 document.getElementById('btnSave').innerText = "保存修改";
-                
-                // 回填数据
                 document.getElementById('inDate').value = item.date;
                 document.getElementById('inJiancha').value = item.items.jiancha || '';
                 document.getElementById('inYaowu').value = item.items.yaowu || '';
@@ -521,12 +560,9 @@
                 document.getElementById('inShangbao').value = item.payment.shangbao || '';
                 document.getElementById('inGeren').value = item.payment.geren || '';
             } else {
-                // 新增模式
                 editingId = null;
                 document.getElementById('entryTitle').innerText = "记一笔";
                 document.getElementById('btnSave').innerText = "保存记录";
-                
-                // 清空数据
                 document.getElementById('inDate').value = dayjs().format('YYYY-MM-DD');
                 ['inJiancha','inYaowu','inJiaotong','inYibao','inShangbao','inGeren'].forEach(id => document.getElementById(id).value = '');
             }
@@ -536,18 +572,16 @@
             const update = () => { document.getElementById('realTimeClock').innerText = dayjs().format('M月D日 dddd HH:mm:ss'); };
             update(); setInterval(update, 1000);
         }
-
         function setGhStatus(status) {
-            const dot = document.getElementById('ghStatusDot');
-            if(!dot) return;
+            const dot = document.getElementById('ghStatusDot'); if(!dot) return;
             dot.className = "w-2 h-2 rounded-full transition-colors duration-500";
             if (status === 'success') dot.classList.add('bg-green-500', 'shadow-[0_0_8px_rgba(34,197,94,0.6)]');
             else if (status === 'error') dot.classList.add('bg-red-500');
             else dot.classList.add('bg-orange-400', 'animate-pulse');
         }
-
         function setLoading(b) { document.getElementById('loadingOverlay').classList[b?'remove':'add']('hidden'); }
         function showError(msg) { const b=document.getElementById('errorBox'); b.innerText=msg; b.classList.remove('hidden'); setTimeout(()=>b.classList.add('hidden'),3000); }
+        function showSuccess(msg) { const b=document.getElementById('successBox'); b.innerText=msg; b.classList.remove('hidden'); setTimeout(()=>b.classList.add('hidden'),2000); }
 
         init();
     </script>
