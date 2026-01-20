@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <!-- 修改：添加 maximum-scale=1, user-scalable=no 以防止输入时页面自动放大 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
     <title>费用统计</title>
     <meta name="theme-color" content="#f97316">
     <link rel="apple-touch-icon" href="/images/icon.png">
@@ -139,12 +140,12 @@
     <!-- 查看更多按钮 (默认隐藏) -->
     <div id="showMoreContainer" class="text-center mb-8 hidden">
         <button onclick="openAllHistory()" class="text-xs text-gray-400 font-bold hover:text-blue-500 transition py-2 px-4 rounded-full active:bg-gray-100">
-            点击查看更多↓
+            点击查看更多
         </button>
     </div>
 
     <!-- 底部按钮 -->
-    <button onclick="openEntryModal()" class="w-full mb-6 bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl text-base font-bold shadow-lg shadow-blue-500/30 active:scale-95 transition flex items-center justify-center gap-2">
+    <button onclick="openEntryModal()" class="w-full mb-8 bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl text-base font-bold shadow-lg shadow-blue-500/30 active:scale-95 transition flex items-center justify-center gap-2">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
         <span>记录新费用</span>
     </button>
