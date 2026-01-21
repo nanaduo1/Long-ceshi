@@ -30,21 +30,6 @@
     }
   },
   {
-    "id": "1714521600000",
-    "date": "2024-05-01",
-    "total": 150,
-    "items": {
-      "jiancha": 0,
-      "yaowu": 120,
-      "jiaotong": 30
-    },
-    "payment": {
-      "yibao": 100,
-      "shangbao": 0,
-      "geren": 50
-    }
-  },
-  {
     "id": "1719792000000",
     "date": "2024-07-01",
     "total": 880,
