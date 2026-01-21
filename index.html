@@ -169,7 +169,7 @@
                 <span id="timeAm" class="text-[10px] opacity-60 mt-1 h-3">--:--</span>
                 <div id="checkAm" class="absolute inset-0 bg-white/95 rounded-xl hidden flex-col items-center justify-center text-green-600">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                    <span class="text-xs font-bold mt-1">已服 (2粒)</span>
+                    <span id="txtAm" class="text-xs font-bold mt-1">--:--</span>
                 </div>
             </button>
             <button onclick="checkIn('pm')" id="btnPm" class="group relative flex flex-col items-center justify-center py-4 rounded-xl border border-white/20 bg-white/10 active:scale-95 transition-all">
@@ -178,7 +178,7 @@
                 <span id="timePm" class="text-[10px] opacity-60 mt-1 h-3">--:--</span>
                 <div id="checkPm" class="absolute inset-0 bg-white/95 rounded-xl hidden flex-col items-center justify-center text-indigo-600">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                    <span class="text-xs font-bold mt-1">已服 (2粒)</span>
+                    <span id="txtPm" class="text-xs font-bold mt-1">--:--</span>
                 </div>
             </button>
         </div>
@@ -707,14 +707,25 @@
                 const log = appData.chiyao.find(l => l.date === today) || {};
                 
                 const updateBtn = (type, taken, time) => {
-                    const cap = type.charAt(0).toUpperCase() + type.slice(1);
-                    const el = document.getElementById(`check${cap}`);
-                    const tm = document.getElementById(`time${cap}`);
-                    if(el && tm) {
-                        if(taken) { el.classList.remove('hidden'); el.classList.add('flex'); tm.innerText=time; } 
-                        else { el.classList.add('hidden'); el.classList.remove('flex'); tm.innerText=""; }
-                    }
-                };
+    const cap = type.charAt(0).toUpperCase() + type.slice(1);
+    const el = document.getElementById(`check${cap}`);
+    const tm = document.getElementById(`time${cap}`);
+    const tx = document.getElementById(`txt${cap}`); // 1. 获取刚才加ID的文字标签
+
+    if(el && tm) {
+        if(taken) { 
+            el.classList.remove('hidden'); 
+            el.classList.add('flex'); 
+            tm.innerText = time;
+            if(tx) tx.innerText = time; // 2. 把这里的文字改成时间
+        } 
+        else { 
+            el.classList.add('hidden'); 
+            el.classList.remove('flex'); 
+            tm.innerText = ""; 
+        }
+    }
+};
                 updateBtn('am', log.taken_am, log.time_am);
                 updateBtn('pm', log.taken_pm, log.time_pm);
                 
