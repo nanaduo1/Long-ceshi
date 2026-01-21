@@ -173,6 +173,10 @@
             <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-3">
                 <h3 class="text-lg font-bold text-gray-800" id="detailDate">--</h3>
                 <div class="flex gap-2">
+                    <!-- 删除按钮 (新增) -->
+                    <button onclick="deleteFromDetail()" class="bg-red-50 text-red-500 rounded-full p-1.5 w-8 h-8 font-bold flex items-center justify-center hover:bg-red-100 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
                     <!-- 修改按钮 -->
                     <button onclick="editFromDetail()" class="bg-blue-50 text-blue-600 rounded-full p-1.5 w-8 h-8 font-bold flex items-center justify-center hover:bg-blue-100 transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
@@ -376,6 +380,47 @@
             // 恢复按钮状态
             btn.innerText = editingId ? "保存修改" : "保存记录"; 
             btn.disabled = false;
+        }
+
+        async function deleteFromDetail() {
+            if (!currentDetailItem) return;
+            if (!confirm("确定要删除这条记录吗？删除后无法恢复。")) return;
+
+            setLoading(true);
+            try {
+                // 移除数据
+                costData = costData.filter(i => i.id !== currentDetailItem.id);
+
+                // 保存到 GitHub
+                const url = `https://api.github.com/repos/${config.user}/${config.repo}/contents/feiyong.json`;
+                let sha = null;
+                try {
+                    const getRes = await fetch(url, { headers: { 'Authorization': `token ${config.token}` }, cache: "no-store" });
+                    if(getRes.ok) { const json = await getRes.json(); sha = json.sha; }
+                } catch(e) {}
+
+                const contentBase64 = window.btoa(unescape(encodeURIComponent(JSON.stringify(costData, null, 2))));
+                const res = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${config.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `Delete cost record`, content: contentBase64, sha: sha })
+                });
+
+                if(!res.ok) throw new Error("Delete failed");
+
+                // UI 更新
+                document.getElementById('detailModal').classList.add('hidden');
+                renderUI();
+                setGhStatus('success');
+                showError("删除成功"); 
+
+            } catch (e) {
+                console.error(e);
+                showError("删除失败: " + e.message);
+                // 失败时可以考虑重新加载数据以保持一致性
+            } finally {
+                setLoading(false);
+            }
         }
 
         function renderUI() {
