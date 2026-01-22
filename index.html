@@ -1265,7 +1265,7 @@
                 }
             } catch (e) {}
         }
-                function renderCharts() {
+                        function renderCharts() {
             try {
                 if (!appData.tijian) return;
                 const canvasBcr = document.getElementById('chartBcr');
@@ -1277,19 +1277,18 @@
                 const labels = data.map(d=>dayjs(d.date).format('MM/DD'));
                 const bcrData = data.map(d => { let val = parseFloat(d.bcr_abl); if(isNaN(val)) return null; return val <= 0 ? 0.0001 : val; });
                 
-                // 通用配置：移除之前的 interaction 设定，回归默认的“点中才显示”
+                // 通用配置
                 const commonOpts = { 
                     responsive:true, 
                     maintainAspectRatio:false, 
                     plugins:{legend:{display:false}},
-                    // 关键点1：这里删除了 interaction: { mode: 'index'... }，这样就不会滑过就显示了
                 };
 
-                // 关键点2：定义一个通用的点配置，视觉大小3，点击热区大小25(很大，好点)
+                // 通用点配置：大触控范围，视觉大小适中
                 const pointConfig = {
-                    pointRadius: 3,      // 眼睛看到的圆点大小 (保持不变)
-                    pointHitRadius: 25,  // 手指点击的感应范围 (变大，方便手机点击)
-                    pointHoverRadius: 5  // 选中时圆点稍微变大一点点
+                    pointRadius: 3,      // 视觉圆点大小
+                    pointHitRadius: 25,  // 触控感应范围
+                    pointHoverRadius: 5  // 选中时放大
                 };
 
                 // --- 1. 基因检测图表 (BCR-ABL) ---
@@ -1302,11 +1301,18 @@
                             label: 'BCR-ABL', 
                             data: bcrData, 
                             borderColor: '#3b82f6', 
-                            backgroundColor: 'rgba(59,130,246,0)', 
+                            
+                            // 🔥 修改 1: 设置点的背景色为实心蓝 (与 borderColor 一致)
+                            pointBackgroundColor: '#3b82f6', 
+                            backgroundColor: 'rgba(59,130,246,0.1)', // 稍微给点淡淡的填充色，不再是全透明
+                            
+                            // 🔥 修改 2: 线条粗细 (数字越大越粗，默认是3)
+                            borderWidth: 2,
+
                             fill: true, 
                             tension: 0.3, 
                             spanGaps: true,
-                            ...pointConfig // 应用上面定义的点配置
+                            ...pointConfig 
                         }] 
                     },
                     options: { 
@@ -1330,20 +1336,24 @@
                                 data: data.map(d=>d.wbc), 
                                 borderColor: '#10b981', 
                                 backgroundColor: '#10b981', 
+                                pointBackgroundColor: '#10b981', // 确保这个也是实心
+                                borderWidth: 2, // 设置线条粗细
                                 tension: 0.3, 
                                 yAxisID: 'y', 
                                 spanGaps: true,
-                                ...pointConfig // 应用点配置
+                                ...pointConfig 
                             },
                             { 
                                 label: 'PLT', 
                                 data: data.map(d=>d.plt), 
                                 borderColor: '#f59e0b', 
                                 backgroundColor: '#f59e0b', 
+                                pointBackgroundColor: '#f59e0b', // 确保这个也是实心
+                                borderWidth: 2, // 设置线条粗细
                                 tension: 0.3, 
                                 yAxisID: 'y1', 
                                 spanGaps: true,
-                                ...pointConfig // 应用点配置
+                                ...pointConfig 
                             }
                         ]
                     },
