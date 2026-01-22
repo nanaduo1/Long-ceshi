@@ -319,7 +319,7 @@
                 <label class="block text-xs font-bold text-gray-500 mb-1">最近一次开始日期</label>
                 <input type="date" id="inPeriodDate" class="w-full bg-pink-50 text-pink-800 rounded-lg p-3 text-sm font-bold outline-none">
             </div>
-            <button onclick="savePeriodNew()" class="w-full bg-pink-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-pink-500/30">保存记录</button>
+            <button onclick="savePeriodNew()" id="btnSavePeriod" class="w-full bg-pink-500 text-white py-3 rounded-xl font-bold text-sm shadow-lg shadow-pink-500/30 transition-all">保存记录</button>
             
             <div class="mt-4 border-t border-gray-100 pt-3">
                  <button onclick="showPeriodHistoryList()" class="w-full text-xs text-gray-400 font-bold py-2">查看历史记录</button>
@@ -835,20 +835,40 @@
         function closePeriodModal() { document.getElementById('periodModal').classList.add('hidden'); }
         
         async function savePeriodNew() {
-            const date = document.getElementById('inPeriodDate').value;
+            const dateInput = document.getElementById('inPeriodDate');
+            const date = dateInput.value;
+            const btn = document.getElementById('btnSavePeriod');
+            
             if(!date) return;
             
-            if (!appData.yuejing) appData.yuejing = [];
-            // 简单策略：如果该日期已存在，则不处理；如果不存在，则添加新记录
-            const exists = appData.yuejing.find(r => r.startDate === date);
-            if (!exists) {
-                appData.yuejing.unshift({ startDate: date, endDate: null });
-                await saveFile('yuejing.json', appData.yuejing);
-            } else {
-                 // 如果日期完全一样，可能只是想确认一下，这里不报错
+            // 视觉反馈：保存中
+            const originalText = btn.innerText;
+            btn.innerText = "保存中...";
+            btn.disabled = true;
+            btn.classList.add('opacity-70');
+
+            try {
+                if (!appData.yuejing) appData.yuejing = [];
+                // 策略：如果日期完全一样，视为无操作直接关闭；如果不一样，添加新记录
+                const exists = appData.yuejing.find(r => r.startDate === date);
+                if (!exists) {
+                    appData.yuejing.unshift({ startDate: date, endDate: null });
+                    await saveFile('yuejing.json', appData.yuejing);
+                } else {
+                    // 如果存在，虽然不保存文件，但也给用户一个反馈
+                    await new Promise(r => setTimeout(r, 300)); 
+                }
+                closePeriodModal();
+                renderUI();
+            } catch (error) {
+                console.error(error);
+                showError("保存失败: " + error.message);
+            } finally {
+                // 恢复按钮状态
+                btn.innerText = originalText;
+                btn.disabled = false;
+                btn.classList.remove('opacity-70');
             }
-            closePeriodModal();
-            renderUI();
         }
 
         // 查看生理期历史列表 (从新弹窗进入)
@@ -865,12 +885,18 @@
              sorted.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = "flex justify-between items-center p-3 bg-gray-50 rounded-xl border border-gray-100 relative group active:scale-[0.98] transition";
+                
+                // 计算结束日期（如果有明确结束日期则使用，否则默认+4天即5天周期）
+                const endDateStr = item.endDate ? item.endDate : dayjs(item.startDate).add(4, 'day').format('YYYY-MM-DD');
+                
                 div.innerHTML = `
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 w-full">
                         <span class="text-base font-bold text-pink-500">${item.startDate}</span>
-                    </div>
-                    <div class="text-gray-300">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        <span class="text-xs text-gray-400 mx-1">~</span>
+                        <span class="text-base font-bold text-pink-500">${endDateStr}</span>
+                        <span class="ml-auto text-gray-300">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                        </span>
                     </div>`;
                 div.onclick = () => openPeriodEdit(index);
                 list.appendChild(div);
