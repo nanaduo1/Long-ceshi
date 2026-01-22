@@ -106,8 +106,8 @@
         </button>
     </div>
 
-    <!-- 1. 打卡大卡片 (保持点击弹出修改库存作为备选，但主要在下方小卡片) -->
-    <div id="medCard" onclick="openStockModal()" class="card shadow-apple bg-gradient-to-br from-blue-500 to-indigo-600 text-white relative overflow-hidden transition-all duration-500 active:scale-[0.98] cursor-pointer">
+    <!-- 1. 打卡大卡片 (移除整体点击事件) -->
+    <div id="medCard" class="card shadow-apple bg-gradient-to-br from-blue-500 to-indigo-600 text-white relative overflow-hidden transition-all duration-500">
         <div id="loadingOverlay" class="absolute inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-20 hidden"><div class="spinner"></div></div>
         
         <div class="flex justify-between items-start mb-4">
@@ -115,16 +115,16 @@
                 <h2 class="text-base font-bold">公主请吃药~</h2>
                 <p class="text-xs opacity-80">记得打卡，记得喝水哦</p>
             </div>
-            <!-- 阻止冒泡，防止点击喝水按钮触发卡片点击事件 -->
-            <div class="flex items-center bg-black/10 rounded-lg px-2 py-1 gap-2" onclick="event.stopPropagation()">
+            <!-- 喝水按钮 -->
+            <div class="flex items-center bg-black/10 rounded-lg px-2 py-1 gap-2">
                 <span class="text-xs font-bold">💧 <span id="waterCount">0</span>/<span id="waterTarget">8</span></span>
                 <button onclick="updateWater(1)" class="w-5 h-5 bg-white/20 rounded text-xs flex items-center justify-center hover:bg-white/30">+</button>
             </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
-            <!-- 阻止冒泡，防止点击打卡触发卡片点击事件 -->
-            <button onclick="checkIn('am'); event.stopPropagation()" id="btnAm" class="group relative flex flex-col items-center justify-center py-4 rounded-xl border border-white/20 bg-white/10 active:scale-95 transition-all">
+            <!-- 早晨打卡 -->
+            <button onclick="checkIn('am')" id="btnAm" class="group relative flex flex-col items-center justify-center py-4 rounded-xl border border-white/20 bg-white/10 active:scale-95 transition-all">
                 <div class="text-2xl mb-1 opacity-50">☀️</div>
                 <span class="text-sm font-bold opacity-80">早晨</span>
                 <span id="timeAm" class="text-[10px] opacity-60 mt-1 h-3">--:--</span>
@@ -133,7 +133,8 @@
                     <span id="txtAm" class="text-xs font-bold mt-1">--:--</span>
                 </div>
             </button>
-            <button onclick="checkIn('pm'); event.stopPropagation()" id="btnPm" class="group relative flex flex-col items-center justify-center py-4 rounded-xl border border-white/20 bg-white/10 active:scale-95 transition-all">
+            <!-- 晚间打卡 -->
+            <button onclick="checkIn('pm')" id="btnPm" class="group relative flex flex-col items-center justify-center py-4 rounded-xl border border-white/20 bg-white/10 active:scale-95 transition-all">
                 <div class="text-2xl mb-1 opacity-50">🌙</div>
                 <span class="text-sm font-bold opacity-80">晚间</span>
                 <span id="timePm" class="text-[10px] opacity-60 mt-1 h-3">--:--</span>
@@ -154,7 +155,7 @@
     </div>
 
     <div class="grid grid-cols-2 gap-3 mb-3">
-        <!-- 2. 爱心胶囊库存卡片 (修正：添加了点击事件，点击此处修改库存) -->
+        <!-- 2. 爱心胶囊库存卡片 (修正：点击此处修改库存) -->
         <div class="card shadow-apple mb-0 p-4 flex flex-col justify-between cursor-pointer active:scale-[0.98] transition" onclick="openStockModal()">
             <span class="text-xs font-bold text-gray-500 uppercase">爱心胶囊 (估算)</span>
             <div class="flex items-end gap-1 my-1">
@@ -653,8 +654,9 @@
                 
                 const card = document.getElementById('medCard');
                 if (card) {
-                    if(log.taken_am && log.taken_pm) card.className = "card shadow-apple bg-gradient-to-br from-emerald-500 to-green-500 text-white relative overflow-hidden transition-all duration-500 active:scale-[0.98] cursor-pointer";
-                    else card.className = "card shadow-apple bg-gradient-to-br from-blue-500 to-indigo-600 text-white relative overflow-hidden transition-all duration-500 active:scale-[0.98] cursor-pointer";
+                    // Update: 移除了点击事件，因此也移除了 cursor-pointer 和 active:scale 类
+                    if(log.taken_am && log.taken_pm) card.className = "card shadow-apple bg-gradient-to-br from-emerald-500 to-green-500 text-white relative overflow-hidden transition-all duration-500";
+                    else card.className = "card shadow-apple bg-gradient-to-br from-blue-500 to-indigo-600 text-white relative overflow-hidden transition-all duration-500";
                 }
 
                 const waterCountEl = document.getElementById('waterCount');
