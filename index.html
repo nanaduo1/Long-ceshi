@@ -1265,31 +1265,96 @@
                 }
             } catch (e) {}
         }
-        function renderCharts() {
+                function renderCharts() {
             try {
                 if (!appData.tijian) return;
                 const canvasBcr = document.getElementById('chartBcr');
                 const canvasBlood = document.getElementById('chartBlood');
                 if (!canvasBcr || !canvasBlood) return;
+                
                 const oneYearAgo = dayjs().subtract(1, 'year');
                 const data = [...appData.tijian].filter(d => dayjs(d.date).isAfter(oneYearAgo)).sort((a,b)=>dayjs(a.date).diff(dayjs(b.date)));
                 const labels = data.map(d=>dayjs(d.date).format('MM/DD'));
                 const bcrData = data.map(d => { let val = parseFloat(d.bcr_abl); if(isNaN(val)) return null; return val <= 0 ? 0.0001 : val; });
-                const commonOpts = { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} };
+                
+                // 通用配置：移除之前的 interaction 设定，回归默认的“点中才显示”
+                const commonOpts = { 
+                    responsive:true, 
+                    maintainAspectRatio:false, 
+                    plugins:{legend:{display:false}},
+                    // 关键点1：这里删除了 interaction: { mode: 'index'... }，这样就不会滑过就显示了
+                };
 
+                // 关键点2：定义一个通用的点配置，视觉大小3，点击热区大小25(很大，好点)
+                const pointConfig = {
+                    pointRadius: 3,      // 眼睛看到的圆点大小 (保持不变)
+                    pointHitRadius: 25,  // 手指点击的感应范围 (变大，方便手机点击)
+                    pointHoverRadius: 5  // 选中时圆点稍微变大一点点
+                };
+
+                // --- 1. 基因检测图表 (BCR-ABL) ---
                 if(window.myBcrChart) window.myBcrChart.destroy();
                 window.myBcrChart = new Chart(canvasBcr.getContext('2d'), {
-                    type: 'line', data: { labels, datasets: [{ label: 'BCR-ABL', data: bcrData, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0)', fill:true, tension:0.3, spanGaps: true }] },
-                    options: { ...commonOpts, scales:{ y:{type:'logarithmic', grid:{borderDash:[4,4]}}, x:{grid:{display:false}} } }
+                    type: 'line', 
+                    data: { 
+                        labels, 
+                        datasets: [{ 
+                            label: 'BCR-ABL', 
+                            data: bcrData, 
+                            borderColor: '#3b82f6', 
+                            backgroundColor: 'rgba(59,130,246,0)', 
+                            fill: true, 
+                            tension: 0.3, 
+                            spanGaps: true,
+                            ...pointConfig // 应用上面定义的点配置
+                        }] 
+                    },
+                    options: { 
+                        ...commonOpts, 
+                        scales:{ 
+                            y:{type:'logarithmic', grid:{borderDash:[4,4]}}, 
+                            x:{grid:{display:false}} 
+                        } 
+                    }
                 });
 
+                // --- 2. 血常规图表 (WBC / PLT) ---
                 if(window.myBloodChart) window.myBloodChart.destroy();
                 window.myBloodChart = new Chart(canvasBlood.getContext('2d'), {
-                    type: 'line', data: { labels, datasets: [
-                        { label: 'WBC', data: data.map(d=>d.wbc), borderColor: '#10b981', backgroundColor: '#10b981', tension:0.3, yAxisID:'y', spanGaps: true },
-                        { label: 'PLT', data: data.map(d=>d.plt), borderColor: '#f59e0b', backgroundColor: '#f59e0b', tension:0.3, yAxisID:'y1', spanGaps: true }
-                    ]},
-                    options: { ...commonOpts, interaction:{mode:'index', intersect:false}, scales:{ y:{position:'left', grid:{borderDash:[4,4]}, ticks: { color: '#10b981' }, border: { color: '#10b981', display: true }}, y1:{position:'right', grid:{display:false}, ticks: { color: '#f59e0b' }, border: { color: '#f59e0b', display: true }}, x:{grid:{display:false}} } }
+                    type: 'line', 
+                    data: { 
+                        labels, 
+                        datasets: [
+                            { 
+                                label: 'WBC', 
+                                data: data.map(d=>d.wbc), 
+                                borderColor: '#10b981', 
+                                backgroundColor: '#10b981', 
+                                tension: 0.3, 
+                                yAxisID: 'y', 
+                                spanGaps: true,
+                                ...pointConfig // 应用点配置
+                            },
+                            { 
+                                label: 'PLT', 
+                                data: data.map(d=>d.plt), 
+                                borderColor: '#f59e0b', 
+                                backgroundColor: '#f59e0b', 
+                                tension: 0.3, 
+                                yAxisID: 'y1', 
+                                spanGaps: true,
+                                ...pointConfig // 应用点配置
+                            }
+                        ]
+                    },
+                    options: { 
+                        ...commonOpts, 
+                        scales:{ 
+                            y:{position:'left', grid:{borderDash:[4,4]}, ticks: { color: '#10b981' }, border: { color: '#10b981', display: true }}, 
+                            y1:{position:'right', grid:{display:false}, ticks: { color: '#f59e0b' }, border: { color: '#f59e0b', display: true }}, 
+                            x:{grid:{display:false}} 
+                        } 
+                    }
                 });
             } catch (e) {}
         }
