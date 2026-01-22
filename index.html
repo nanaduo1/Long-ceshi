@@ -101,9 +101,20 @@
             </div>
             <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">老婆么么哒❤️</h1>
         </div>
-        <button onclick="openProfileModal()" class="bg-white p-2.5 rounded-full shadow-sm active:scale-95 transition">
-            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
-        </button>
+        
+        <!-- 右上角区域：天气 + 个人图标 -->
+        <div class="flex items-center gap-3">
+            <!-- 天气按钮 -->
+            <button onclick="openWeatherModal()" id="weatherBtn" class="bg-white p-2.5 h-10 min-w-[3rem] rounded-full shadow-sm active:scale-95 transition flex items-center justify-center gap-1">
+                <span id="homeWeatherIcon" class="text-base">⛅</span>
+                <span id="homeWeatherTemp" class="text-xs font-bold text-gray-600 hidden">--°</span>
+            </button>
+
+            <!-- 个人图标 -->
+            <button onclick="openProfileModal()" class="bg-white p-2.5 h-10 w-10 rounded-full shadow-sm active:scale-95 transition flex items-center justify-center">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+            </button>
+        </div>
     </div>
 
     <!-- 1. 打卡大卡片 (移除整体点击事件) -->
@@ -217,13 +228,13 @@
                 <div class="flex items-center gap-1">
                     <h3 class="text-sm font-bold text-gray-800">BCR-ABL % (近1年)</h3>
                     <button onclick="document.getElementById('infoModal').classList.remove('hidden')" class="active:scale-95 transition-transform">
-                        <div class="w-3.5 h-3.5 rounded-full bg-gray-400 text-white flex items-center justify-center text-[10px] font-bold not-italic">i</div>
+                        <div class="w-3.5 h-3.5 rounded-full bg-gray-300 text-white flex items-center justify-center text-[10px] font-bold not-italic">i</div>
                     </button>
                 </div>
                 <span class="text-[10px] text-gray-800 flex items-center gap-1">
     <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>当前基因检测周期为3月1检，持续2年</span>
             </div>
-            <button onclick="showHistoryModal('bcr')" class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 active:scale-95 transition">
+            <button onclick="showLabHistory('bcr')" class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 active:scale-95 transition">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
             </button>
         </div>
@@ -239,7 +250,7 @@
                     <span class="text-[10px] flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>PLT 血小板</span>
                 </div>
             </div>
-            <button onclick="showHistoryModal('blood')" class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 active:scale-95 transition">
+            <button onclick="showLabHistory('blood')" class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 active:scale-95 transition">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
             </button>
         </div>
@@ -266,6 +277,42 @@
     </button>
 
     <!-- ====== 弹窗区域 ====== -->
+
+    <!-- 天气弹窗 (新增) -->
+    <div id="weatherModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl animate-slide-up relative">
+            <button onclick="closeWeatherModal()" class="absolute top-4 right-4 bg-gray-100 rounded-full p-1 w-8 h-8 text-gray-500 font-bold z-10">✕</button>
+            
+            <div class="flex flex-col items-center mb-6 mt-2">
+                <h2 id="weatherCityName" class="text-lg font-bold text-gray-800 flex items-center gap-1 cursor-pointer" onclick="toggleCityInput()">
+                    <span>Loading...</span> 
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                </h2>
+                <!-- 城市搜索框 (默认隐藏) -->
+                <div id="cityInputBox" class="w-full mt-2 hidden">
+                    <div class="flex gap-2">
+                        <input type="text" id="inputCityName" placeholder="输入城市拼音 (如 Beijing)" class="flex-1 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none">
+                        <button onclick="searchCity()" class="bg-blue-500 text-white rounded-lg px-3 text-sm font-bold">搜索</button>
+                    </div>
+                    <div id="citySearchResult" class="mt-2 text-xs text-gray-500"></div>
+                </div>
+
+                <div class="mt-4 flex flex-col items-center">
+                    <div id="modalWeatherIcon" class="text-6xl mb-2">⛅</div>
+                    <div id="modalTemp" class="text-4xl font-extrabold text-gray-900">--°</div>
+                    <div id="modalCondition" class="text-sm text-gray-500 font-bold mt-1">--</div>
+                </div>
+            </div>
+
+            <!-- 未来3天预报 -->
+            <div class="space-y-3">
+                <h3 class="text-xs font-bold text-gray-400 uppercase">未来3天预报</h3>
+                <div id="forecastList" class="space-y-2">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- 修改库存弹窗 -->
     <div id="stockModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
@@ -519,6 +566,7 @@
         async function init() {
             try {
                 startClock();
+                initWeather(); // 初始化天气
                 if (!config) { 
                     removeSplash();
                     openSettings(); 
@@ -550,6 +598,141 @@
                 removeSplash();
             }
         }
+
+        // --- 天气模块开始 ---
+        let weatherConfig = JSON.parse(localStorage.getItem('weather_config')) || { name: 'Beijing', lat: 39.9042, lon: 116.4074 };
+        const weatherCodeMap = {
+            0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️',
+            45: '🌫️', 48: '🌫️',
+            51: '🌧️', 53: '🌧️', 55: '🌧️',
+            61: '🌧️', 63: '🌧️', 65: '🌧️',
+            71: '❄️', 73: '❄️', 75: '❄️',
+            80: '🌦️', 81: '🌦️', 82: '🌦️',
+            95: '⛈️', 96: '⛈️', 99: '⛈️'
+        };
+
+        function initWeather() {
+            fetchWeather();
+        }
+
+        async function fetchWeather() {
+            const btnIcon = document.getElementById('homeWeatherIcon');
+            const btnTemp = document.getElementById('homeWeatherTemp');
+            
+            try {
+                // 使用 Open-Meteo 免费 API
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${weatherConfig.lat}&longitude=${weatherConfig.lon}&current_weather=true&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Weather API Error');
+                const data = await res.json();
+                
+                // 更新首页按钮
+                const currentCode = data.current_weather.weathercode;
+                const currentTemp = Math.round(data.current_weather.temperature);
+                const icon = weatherCodeMap[currentCode] || '🌥️';
+                
+                btnIcon.innerText = icon;
+                btnTemp.innerText = `${currentTemp}°`;
+                btnTemp.classList.remove('hidden');
+
+                // 存储数据供弹窗使用
+                window.weatherCache = data;
+            } catch (e) {
+                console.error("Weather load failed", e);
+                btnIcon.innerText = '⚠️'; 
+                btnTemp.innerText = '';
+            }
+        }
+
+        function openWeatherModal() {
+            document.getElementById('weatherModal').classList.remove('hidden');
+            document.getElementById('weatherCityName').querySelector('span').innerText = weatherConfig.name;
+            document.getElementById('cityInputBox').classList.add('hidden');
+            
+            const data = window.weatherCache;
+            if (!data) { fetchWeather(); return; }
+
+            // 渲染当前天气
+            const currentCode = data.current_weather.weathercode;
+            document.getElementById('modalWeatherIcon').innerText = weatherCodeMap[currentCode] || '🌥️';
+            document.getElementById('modalTemp').innerText = `${Math.round(data.current_weather.temperature)}°`;
+            document.getElementById('modalCondition').innerText = getConditionText(currentCode);
+
+            // 渲染预报 (后3天)
+            const list = document.getElementById('forecastList');
+            list.innerHTML = '';
+            const daily = data.daily;
+            // i=1 是明天，i=2 后天，i=3 大后天
+            for(let i=1; i<=3; i++) {
+                if(daily.time[i]) {
+                    const date = dayjs(daily.time[i]).format('M月D日');
+                    const min = Math.round(daily.temperature_2m_min[i]);
+                    const max = Math.round(daily.temperature_2m_max[i]);
+                    const code = daily.weathercode[i];
+                    const icon = weatherCodeMap[code] || '🌥️';
+                    
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-50 p-3 rounded-xl">
+                            <span class="text-sm font-bold text-gray-600">${date}</span>
+                            <span class="text-xl">${icon}</span>
+                            <span class="text-sm font-bold text-gray-800">${min}° / ${max}°</span>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function closeWeatherModal() {
+            document.getElementById('weatherModal').classList.add('hidden');
+        }
+
+        function toggleCityInput() {
+            const box = document.getElementById('cityInputBox');
+            box.classList.toggle('hidden');
+            if(!box.classList.contains('hidden')) document.getElementById('inputCityName').focus();
+        }
+
+        async function searchCity() {
+            const name = document.getElementById('inputCityName').value;
+            const resBox = document.getElementById('citySearchResult');
+            resBox.innerText = "搜索中...";
+            
+            if(!name) return;
+
+            try {
+                // 使用 Open-Meteo Geocoding
+                const url = `https://geocoding-api.open-meteo.com/v1/search?name=${name}&count=1&language=zh&format=json`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.results && data.results.length > 0) {
+                    const city = data.results[0];
+                    weatherConfig = { name: city.name, lat: city.latitude, lon: city.longitude };
+                    localStorage.setItem('weather_config', JSON.stringify(weatherConfig));
+                    resBox.innerText = `已切换至: ${city.name}`;
+                    setTimeout(() => {
+                        toggleCityInput();
+                        resBox.innerText = "";
+                        fetchWeather().then(openWeatherModal);
+                    }, 1000);
+                } else {
+                    resBox.innerText = "未找到该城市，请尝试拼音";
+                }
+            } catch (e) {
+                resBox.innerText = "搜索失败，请重试";
+            }
+        }
+
+        function getConditionText(code) {
+            if(code === 0) return '晴朗';
+            if(code <= 3) return '多云';
+            if(code <= 48) return '雾/霾';
+            if(code <= 67) return '有雨';
+            if(code <= 77) return '有雪';
+            if(code <= 82) return '阵雨';
+            return '雷暴';
+        }
+        // --- 天气模块结束 ---
 
         function startLiquidAnimation(duration) {
             const waveContainer = document.getElementById('waveContainer');
@@ -1029,7 +1212,7 @@
 
                 if(window.myBcrChart) window.myBcrChart.destroy();
                 window.myBcrChart = new Chart(canvasBcr.getContext('2d'), {
-                    type: 'line', data: { labels, datasets: [{ label: 'BCR-ABL', data: bcrData, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill:true, tension:0.3, spanGaps: true }] },
+                    type: 'line', data: { labels, datasets: [{ label: 'BCR-ABL', data: bcrData, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0)', fill:true, tension:0.3, spanGaps: true }] },
                     options: { ...commonOpts, scales:{ y:{type:'logarithmic', grid:{borderDash:[4,4]}}, x:{grid:{display:false}} } }
                 });
 
