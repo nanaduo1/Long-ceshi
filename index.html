@@ -774,7 +774,8 @@
                 const today = dayjs();
                 
                 let isPeriodActive = false; let daysInto = 0;
-                const endDate = lastRecord.endDate ? dayjs(lastRecord.endDate) : start.add(duration, 'day');
+                // Fix: 结束日期应该是 start + (duration - 1)
+                const endDate = lastRecord.endDate ? dayjs(lastRecord.endDate) : start.add(duration - 1, 'day');
                 
                 if ((today.isSame(start, 'day') || today.isAfter(start, 'day')) && (today.isSame(endDate, 'day') || today.isBefore(endDate, 'day'))) {
                     isPeriodActive = true; daysInto = today.diff(start, 'day') + 1;
@@ -849,15 +850,27 @@
 
             try {
                 if (!appData.yuejing) appData.yuejing = [];
-                // 策略：如果日期完全一样，视为无操作直接关闭；如果不一样，添加新记录
-                const exists = appData.yuejing.find(r => r.startDate === date);
-                if (!exists) {
-                    appData.yuejing.unshift({ startDate: date, endDate: null });
-                    await saveFile('yuejing.json', appData.yuejing);
-                } else {
-                    // 如果存在，虽然不保存文件，但也给用户一个反馈
-                    await new Promise(r => setTimeout(r, 300)); 
+                
+                // 优化：不仅仅是新增，而是检查是否是更新最近一次的记录
+                // 如果输入的日期和最近一次记录的日期非常接近（例如14天内），则视为修改，而非新增
+                const sorted = appData.yuejing.sort((a, b) => dayjs(b.startDate).diff(dayjs(a.startDate)));
+                const latest = sorted[0];
+                
+                let isUpdate = false;
+                if (latest) {
+                    const diffDays = Math.abs(dayjs(date).diff(dayjs(latest.startDate), 'day'));
+                    if (diffDays < 14) {
+                        latest.startDate = date;
+                        latest.endDate = null; // 重置结束日期，让系统自动计算或需重新指定
+                        isUpdate = true;
+                    }
                 }
+                
+                if (!isUpdate) {
+                    appData.yuejing.unshift({ startDate: date, endDate: null });
+                }
+                
+                await saveFile('yuejing.json', appData.yuejing);
                 closePeriodModal();
                 renderUI();
             } catch (error) {
