@@ -149,7 +149,9 @@
     <div class="card shadow-apple p-4 mb-3">
         <div class="flex justify-between items-center mb-3">
             <h3 class="text-sm font-bold text-gray-800">让我看看有没有按时吃药😏</h3>
-            <button onclick="showHistoryModal()" class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-md">详细</button>
+            <button onclick="showHistoryModal()" class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 active:scale-95 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+            </button>
         </div>
         <div class="flex justify-between" id="weekHistory"></div>
     </div>
@@ -221,7 +223,9 @@
                 <span class="text-[10px] text-gray-800 flex items-center gap-1">
     <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>当前基因检测周期为3月1检，持续2年</span>
             </div>
-            <button onclick="showLabHistory('bcr')" class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-md h-7">详细</button>
+            <button onclick="showHistoryModal()" class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 active:scale-95 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+            </button>
         </div>
         <div style="height: 180px;"><canvas id="chartBcr"></canvas></div>
     </div>
@@ -235,7 +239,9 @@
                     <span class="text-[10px] flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>PLT 血小板</span>
                 </div>
             </div>
-            <button onclick="showLabHistory('blood')" class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-md h-7">详细</button>
+            <button onclick="showHistoryModal()" class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 active:scale-95 transition">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+            </button>
         </div>
         <div style="height: 180px;"><canvas id="chartBlood"></canvas></div>
     </div>
