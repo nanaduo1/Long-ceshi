@@ -167,7 +167,7 @@
                 <div class="text-2xl mb-1 opacity-50">☀️</div>
                 <span class="text-sm font-bold opacity-80">早晨</span>
                 <span id="timeAm" class="text-[10px] opacity-60 mt-1 h-3">--:--</span>
-                <div id="checkAm" class="absolute inset-0 bg-white/95 rounded-xl hidden flex-col items-center justify-center text-green-600">
+                <div id="checkAm" class="absolute inset-0 bg-gray-50 rounded-xl hidden flex-col items-center justify-center text-green-600">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                     <span id="txtAm" class="text-xs font-bold mt-1">--:--</span>
                 </div>
@@ -176,7 +176,7 @@
                 <div class="text-2xl mb-1 opacity-50">🌙</div>
                 <span class="text-sm font-bold opacity-80">晚间</span>
                 <span id="timePm" class="text-[10px] opacity-60 mt-1 h-3">--:--</span>
-                <div id="checkPm" class="absolute inset-0 bg-white/95 rounded-xl hidden flex-col items-center justify-center text-indigo-600">
+                <div id="checkPm" class="absolute inset-0 bg-gray-50 rounded-xl hidden flex-col items-center justify-center text-indigo-600">
                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                     <span id="txtPm" class="text-xs font-bold mt-1">--:--</span>
                 </div>
@@ -194,7 +194,7 @@
 
     <div class="grid grid-cols-2 gap-3 mb-3">
         <div class="card shadow-apple mb-0 p-4 flex flex-col justify-between">
-            <span class="text-xs font-bold text-gray-400 uppercase">爱心胶囊 (估算)</span>
+            <span class="text-xs font-bold text-gray-500 uppercase">爱心胶囊 (估算)</span>
             <div class="flex items-end gap-1 my-1">
                 <span class="text-3xl font-extrabold text-gray-900" id="stockCount">--</span>
                 <span class="text-xs text-gray-500 mb-1 font-bold">粒</span>
@@ -202,11 +202,11 @@
             <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                 <div id="stockBar" class="bg-green-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
-            <p class="text-[10px] text-gray-400 mt-1 text-right">总容量 120</p>
+            <p class="text-[10px] text-gray-400 mt-1 text-left">总容量 120</p>
         </div>
         
         <div class="card shadow-apple mb-0 p-4 flex flex-col justify-between">
-            <span class="text-xs font-bold text-gray-400 uppercase">距离复查</span>
+            <span class="text-xs font-bold text-gray-500 uppercase">距离复查</span>
             <div class="flex items-end gap-1 my-1">
                 <span class="text-3xl font-extrabold text-gray-900" id="daysUntil">--</span>
                 <span class="text-xs text-gray-500 mb-1 font-bold">天</span>
@@ -214,14 +214,14 @@
             <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                 <div id="daysBar" class="bg-green-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
             </div>
-            <p class="text-[10px] text-gray-400 mt-1 text-right">复查日期 <span id="visitDate">--/--</span></p>
+            <p class="text-[10px] text-gray-400 mt-1 text-left">复查日期 <span id="visitDate">--/--</span></p>
         </div>
     </div>
 
     <div class="grid grid-cols-2 gap-3 mb-3">
         <div class="card shadow-apple mb-0 p-4 flex flex-col justify-between relative overflow-hidden">
             <div class="flex justify-between items-start z-10">
-                <span class="text-xs font-bold text-gray-400 uppercase">距离基因检测</span>
+                <span class="text-xs font-bold text-gray-500 uppercase">距离基因检测</span>
                 <button onclick="openGeneModal()" class="text-gray-400 hover:text-gray-600 active:scale-95 transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                 </button>
@@ -235,8 +235,8 @@
 
         <div id="periodCard" class="card shadow-apple mb-0 p-4 flex flex-col justify-between relative overflow-hidden transition-all duration-500">
             <div class="flex justify-between items-start z-10">
-                <span id="periodTitle" class="text-xs font-bold text-gray-400 uppercase transition-colors">距离生理期</span>
-                <button onclick="openPeriodModal()" id="periodPlusBtn" class="text-gray-400 hover:text-gray-600 active:scale-95 transition-all">
+                <span id="periodTitle" class="text-xs font-bold text-gray-500 uppercase transition-colors">距离生理期</span>
+                <button onclick="openPeriodModal()" id="periodPlusBtn" class="text-gray-500 hover:text-gray-600 active:scale-95 transition-all">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
                 </button>
             </div>
@@ -259,7 +259,8 @@
                         </svg>
                     </button>
                 </div>
-                <span class="text-[10px] text-gray-400">当前基因检测周期为3月1检，持续2年</span>
+                <span class="text-[10px] text-gray-800 flex items-center gap-1">
+    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>当前基因检测周期为3月1检，持续2年</span>
             </div>
             <button onclick="showLabHistory('bcr')" class="text-xs text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded-md h-7">详细</button>
         </div>
@@ -492,11 +493,6 @@
                 <a href="cost.html" class="block w-full bg-emerald-50 text-emerald-600 py-3.5 rounded-xl font-bold text-center active:scale-95 transition flex items-center justify-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <span>费用统计</span>
-                </a>
-                <!-- 备用按钮 -->
-                <a href="cost.html" class="block w-full bg-gray-50 text-gray-600 py-3.5 rounded-xl font-bold text-center active:scale-95 transition flex items-center justify-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5"/></svg>
-                    <span>备用按钮</span>
                 </a>
                 <!-- 设置按钮 -->
                 <button onclick="openSettingsFromProfile()" class="w-full bg-gray-50 text-gray-600 py-3.5 rounded-xl font-bold text-center active:scale-95 transition flex items-center justify-center gap-2">
@@ -858,7 +854,7 @@
                 } else {
                     // 非月经期样式
                     if(card) card.className = "card shadow-apple mb-0 p-4 flex flex-col justify-between relative overflow-hidden transition-all duration-500 bg-white";
-                    if(title) { title.className = "text-xs font-bold text-gray-400 uppercase transition-colors"; title.innerText = "距离生理期"; }
+                    if(title) { title.className = "text-xs font-bold text-gray-500 uppercase transition-colors"; title.innerText = "距离生理期"; }
                     if(mainText) mainText.className = "text-3xl font-extrabold text-gray-900 transition-colors";
                     if(subText) subText.className = "text-[10px] text-gray-400 mt-1 transition-colors z-10";
                     if(unit) { unit.className = "text-xs text-gray-500 mb-1 font-bold transition-colors"; unit.innerText = "天"; }
