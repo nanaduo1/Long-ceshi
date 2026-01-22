@@ -214,10 +214,8 @@
             <div class="h-10 flex flex-col justify-center">
                 <div class="flex items-center gap-1">
                     <h3 class="text-sm font-bold text-gray-800">BCR-ABL % (近1年)</h3>
-                    <button onclick="document.getElementById('infoModal').classList.remove('hidden')" class="text-gray-400 hover:text-blue-500 active:scale-95 transition-transform">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                        </svg>
+                    <button onclick="document.getElementById('infoModal').classList.remove('hidden')" class="active:scale-95 transition-transform">
+                        <div class="w-4 h-4 rounded-full bg-gray-400 text-white flex items-center justify-center text-[10px] font-sans not-italic">i</div>
                     </button>
                 </div>
                 <span class="text-[10px] text-gray-800 flex items-center gap-1">
@@ -386,6 +384,27 @@
                         <tr class="bg-gray-50/30"><td class="px-3 py-2">MR4</td><td class="px-3 py-2 text-gray-500">深度缓解</td><td class="px-3 py-2 text-right">≤0.01%</td></tr>
                         <tr><td class="px-3 py-2">MR4.5</td><td class="px-3 py-2 text-gray-500">极深缓解</td><td class="px-3 py-2 text-right">≤0.0032%</td></tr>
                         <tr class="bg-green-50 text-green-700"><td class="px-3 py-2">CMR</td><td class="px-3 py-2">完全缓解</td><td class="px-3 py-2 text-right">未检出</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <!-- 分隔线或间距 -->
+            <div class="h-1"></div>
+
+            <!-- 新增的表格 -->
+            <h4 class="text-sm font-bold text-blue-600 mb-2 mt-3">重要时间节点</h4>
+            <div class="overflow-hidden rounded-lg border border-gray-100 text-xs mb-1">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-gray-500 uppercase tracking-wider">
+                        <tr>
+                            <th class="px-3 py-2 font-medium">时间</th>
+                            <th class="px-3 py-2 font-medium text-right whitespace-nowrap">BCR-ABL</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 text-gray-700 font-medium">
+                        <tr><td class="px-3 py-2">3 个月</td><td class="px-3 py-2 text-right">≤10%</td></tr>
+                        <tr class="bg-gray-50/30"><td class="px-3 py-2">6 个月</td><td class="px-3 py-2 text-right">≤1%</td></tr>
+                        <tr><td class="px-3 py-2">12 个月</td><td class="px-3 py-2 text-right">≤0.1%</td></tr>
+                        <tr class="bg-gray-50/30"><td class="px-3 py-2">24 个月</td><td class="px-3 py-2 text-right">≤0.01%</td></tr>
                     </tbody>
                 </table>
             </div>
